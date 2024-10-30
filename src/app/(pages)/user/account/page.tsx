@@ -1,11 +1,10 @@
-'use client'
+"use client";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/user/main-nav";
 import ProfileSidebar from "@/components/user/profile-sidebar";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle
@@ -14,113 +13,81 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
-import avata from '../../../../../public/images/avata.jpg'
-import { CalendarDays } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox"
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useWatch  } from "react-hook-form"
-import { z } from "zod"
-import { useEffect } from 'react';
-
-import {useUserStore} from '@/services/store/userStore'
+  FormMessage
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, useWatch } from "react-hook-form";
+import { z } from "zod";
+import { useEffect, useState } from "react";
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
+import { useUserStore } from "@/services/store/userStore";
 
 const formUserInfoSchema = z.object({
-  Fname: z.string().min(2, {
-    message: "First name must be at least 2 characters.",
-  }),
-  Lname: z.string().min(2, {
-    message: "Last name must be at least 2 characters.",
-  }),
-  email: z.string(),
-  phone: z.string(),
+  firstName: z.string().min(2, { message: "First name must be at least 2 characters." }),
+  lastName: z.string().min(2, { message: "Last name must be at least 2 characters." }),
+  location: z.string(),
+  phoneNumber: z.string(),
+  gender: z.string(),
+  dateOfBirth: z.string(),
   avatar: z.string(),
-  role: z.string(),
-})
+  role: z.string()
+});
 
 const formUserPasswordSchema = z.object({
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters",
-  }),
-  confirmPassword: z.string().min(6, {
-    message: "Password must be at least 6 characters",
-  })
-})
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  confirmPassword: z.string().min(6, { message: "Password must be at least 6 characters." })
+});
 
 const Information = () => {
+  const [imagePreview, setImagePreview] = useState<string>("");
+
   const formInfo = useForm<z.infer<typeof formUserInfoSchema>>({
     resolver: zodResolver(formUserInfoSchema),
     defaultValues: {
-      Fname: "",
-      Lname: "",
-      email: "",
-      phone: "",
+      firstName: "",
+      lastName: "",
+      location: "",
+      phoneNumber: "",
+      gender: "Nam",
+      dateOfBirth: "",
       avatar: "",
       role: ""
-    },
-  })
-
-  const Fname = useWatch({
-    control: formInfo.control,
-    name: "Fname"
+    }
   });
 
-  const Lname = useWatch({
-    control: formInfo.control,
-    name: "Lname"
-  });
-
-  const email = useWatch({
-    control: formInfo.control,
-    name: "email"
-  });
-
-  const phone = useWatch({
-    control: formInfo.control,
-    name: "phone"
-  });
-
-  const avatar = useWatch({
-    control: formInfo.control,
-    name: "avatar"
-  });
-
-  const role = useWatch({
-    control: formInfo.control,
-    name: "role"
-  });
+  const avatar = useWatch({ control: formInfo.control, name: "avatar" });
 
   const formPassword = useForm<z.infer<typeof formUserPasswordSchema>>({
     resolver: zodResolver(formUserPasswordSchema),
-    defaultValues: {
-      password: '',
-      confirmPassword: '',
-    },
-  })
+    defaultValues: { password: "", confirmPassword: "" }
+  });
 
-  
-  const getInfo = useUserStore(state => state.getInfo)
+  const getInfo = useUserStore((state) => state.getInfo);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userInfo = await getInfo();
+        const id = sessionStorage.getItem('userId');
+        const userInfo = await getInfo(id);
         if (userInfo) {
-          formInfo.setValue('Fname', userInfo.Fname || '');
-          formInfo.setValue('Lname', userInfo.Lname || '');
-          formInfo.setValue('email', userInfo.email || '');
-          formInfo.setValue('phone', userInfo.phone || '');
-          formInfo.setValue('avatar', userInfo.avatar || '');
-          formInfo.setValue('role', userInfo.role || '');
+          formInfo.setValue("firstName", userInfo.firstName || "");
+          formInfo.setValue("lastName", userInfo.lastName || "");
+          formInfo.setValue("phoneNumber", userInfo.phoneNumber || "");
+          formInfo.setValue("location", userInfo.location || "");
+          formInfo.setValue("gender", userInfo.gender || "");
+          formInfo.setValue("dateOfBirth", userInfo.dateOfBirth || "");
+          formInfo.setValue("avatar", userInfo.avatar || "");
+          formInfo.setValue("role", userInfo.role || "");
+          setImagePreview(userInfo.avatar || "");
         }
-        console.log('Response', userInfo)
       } catch (error) {
         console.error("Error fetching user information:", error);
       }
@@ -129,226 +96,266 @@ const Information = () => {
     fetchData();
   }, [getInfo]);
 
+  const updateInfo = useUserStore((state) => state.updateInfo);
+  const updateAvatar = useUserStore((state) => state.updateAvatar);
+
   async function onSubmit(values: z.infer<typeof formUserInfoSchema>) {
     try {
-       const userInfo = await getInfo()
-       console.log("Repsonse ", userInfo)
+      const userId = sessionStorage.getItem('userId'); 
+      const updatedUserInfo = {
+        userId,
+        ...values 
+      };
+      const userInfo = await updateInfo(updatedUserInfo); 
+      console.log('User Info', userInfo)
+      if (Boolean(userInfo)) {
+        toast.success('Chỉnh sửa thông tin thành công', { autoClose: 1500 });
+      }
     } catch (err) {
-      console.error(err)
+      toast.error('Chỉnh sửa thông tin không thành công', { autoClose: 1500 });
+      console.error(err);
     }
   }
+
+  const updatePassword = useUserStore((state) => state.updatePassword);
 
   async function onSubmitPassword(values: z.infer<typeof formUserPasswordSchema>) {
     try {
-
+      const userPassword = await updatePassword(values);
+      console.log("Response Update Password", userPassword);
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
   }
 
-  const fullName = `${formInfo.watch("Fname")} ${formInfo.watch("Lname")}`;
-  const userAvatar = formInfo.watch("avatar");
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; 
+    if (file) {
+      const imagePreviewUrl = URL.createObjectURL(file); 
+      setImagePreview(imagePreviewUrl); 
+  
+      const userId = sessionStorage.getItem('userId');
+      const formData = new FormData();
+  
+      formData.append('AvatarUpdate', file);
+      formData.append('UserId', userId || ''); 
+  
+      try {
+        console.log("Uploading avatar...");
+        const response = await updateAvatar(formData); 
+        if (Boolean(response)) {
+          toast.success('Chỉnh sửa ảnh thành công', { autoClose: 1500 });
+        }
+      } catch (error) {
+        toast.error('Chỉnh sửa ảnh không thành công', { autoClose: 1500 });
+      }
+    } else {
+      console.log("No file selected");
+    }
+  };
 
   return (
+    <>
     <div>
       <div className="sticky z-20">
         <Navbar />
       </div>
       <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-        <ProfileSidebar fullName={fullName} avatar={userAvatar} />
+        <ProfileSidebar fullName={`${formInfo.watch("firstName")} ${formInfo.watch("lastName")}`} avatar={imagePreview} />
         <div className="flex flex-col h-[89%]">
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
             <div className="flex items-center">
-              <h1 className="text-lg font-semibold md:text-2xl">
-                Thông tin tài khoản
-              </h1>
+              <h1 className="text-lg font-semibold md:text-2xl">Thông tin tài khoản</h1>
             </div>
-            <div
-              className="flex flex-1 items-start px-5 py-5 justify-start rounded-lg border border-dashed shadow-sm"
-              x-chunk="dashboard-02-chunk-1"
-            >
-           
-              <Tabs defaultValue="account" className="w-[800px] h-[800px]">
+            <div className="flex flex-1 items-center px-5 py-5 justify-center rounded-lg border border-dashed shadow-sm">
+              <Tabs defaultValue="account" className="w-[800px] h-[630px]">
                 <TabsList className="grid w-1/2 grid-cols-2">
                   <TabsTrigger value="account">Thông tin cá nhân</TabsTrigger>
                   <TabsTrigger value="password">Đổi mật khẩu</TabsTrigger>
                 </TabsList>
                 <TabsContent value="account">
-                <Form {...formInfo}>
-                <form onSubmit={formInfo.handleSubmit(onSubmit)}>
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Thông tin cá nhân</CardTitle>
-                        <CardTitle>
-                          <Image 
-                            src = {avata}
-                            width={200}
-                            height={200}
-                            alt = 'avatar'
-                            className = 'rounded-full border mt-2'
-                          />
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        <div className="flex gap-4">
-                          <div className='w-1/2'>
-                          <FormField
-                              control={formInfo.control}
-                              name="Fname"
-                              render={({ field }) => (
+                  <Form {...formInfo}>
+                    <form onSubmit={formInfo.handleSubmit(onSubmit)}>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Thông tin cá nhân</CardTitle>
+                          <label htmlFor="avatar-upload" className="cursor-pointer">
+                            <input type="file" id="avatar-upload" className="hidden" onChange={handleAvatarChange} />
+                            <img src={imagePreview} alt="Avatar" width={200} height={200} className="rounded-full border mt-2 min-h-[200px] min-w-[200px]" />
+                          </label>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <div className="flex gap-4">
+                            <div className="w-1/2">
+                              <FormField
+                                control={formInfo.control}
+                                name="firstName"
+                                render={({ field }) => (
                                   <FormItem>
-                                  <FormLabel>Họ & Tên đệm</FormLabel>
-                                  <FormControl>
+                                    <FormLabel>Họ & Tên đệm</FormLabel>
+                                    <FormControl>
                                       <Input placeholder="Họ & Tên đệm" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
+                                    </FormControl>
+                                    <FormMessage />
                                   </FormItem>
-                              )}
-                          />
-                          </div>
-                          <div className='w-1/2 '>
-                          <FormField
-                              control={formInfo.control}
-                              name="Lname"
-                              render={({ field }) => (
+                                )}
+                              />
+                            </div>
+                            <div className="w-1/2">
+                              <FormField
+                                control={formInfo.control}
+                                name="lastName"
+                                render={({ field }) => (
                                   <FormItem>
-                                  <FormLabel>Tên</FormLabel>
-                                  <FormControl>
+                                    <FormLabel>Tên</FormLabel>
+                                    <FormControl>
                                       <Input placeholder="Tên" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
+                                    </FormControl>
+                                    <FormMessage />
                                   </FormItem>
-                              )}
-                          />
-                          </div>
-                        </div>
-                        <div className="flex gap-4">
-                          <div className='w-1/2'>
-                          <FormField
-                              control={formInfo.control}
-                              name="phone"
-                              render={({ field }) => (
-                                  <FormItem>
-                                  <FormLabel>Số điện thoại</FormLabel>
-                                  <FormControl>
-                                      <Input placeholder="Số điện thoại" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                  </FormItem>
-                              )}
-                          />
-                          </div>
-                          <div className='w-1/2'>
-                            <div className='flex gap-4'>
-                              <div className='flex mt-8 gap-2'>
-                                <Checkbox id="terms" checked/>
-                                <label
-                                  htmlFor="males"
-                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                  Nam
-                                </label>
-                              </div>
-                              <div className='flex mt-8 gap-2'>
-                                <Checkbox id="terms" />
-                                <label
-                                  htmlFor="males"
-                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                  Nữ
-                                </label>
-                              </div>
-                              <div className='flex mt-8 gap-2'>
-                                <Checkbox id="terms" />
-                                <label
-                                  htmlFor="males"
-                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                  Khác
-                                </label>
-                              </div>
+                                )}
+                              />
                             </div>
                           </div>
-                        </div>
-                        <div className="space-y-1">
-                        <FormField
-                              control={formInfo.control}
-                              name="email"
-                              render={({ field }) => (
+                          <div className="flex gap-4">
+                            <div className="w-1/2">
+                              <FormField
+                                control={formInfo.control}
+                                name="phoneNumber"
+                                render={({ field }) => (
                                   <FormItem>
-                                  <FormLabel>Email</FormLabel>
-                                  <FormControl>
-                                      <Input placeholder="Email" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
+                                    <FormLabel>Số điện thoại</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Số điện thoại" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
                                   </FormItem>
-                              )}
-                          />
-                        </div>
-                      </CardContent>
-                      <CardFooter>
-                        <Button>Save changes</Button>
-                      </CardFooter>
-                    </Card>
+                                )}
+                              />
+                            </div>
+                            <div className="w-1/2">
+                              <FormField
+                                control={formInfo.control}
+                                name="location"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Địa chỉ</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Địa chỉ" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+                          <div className="flex gap-4">
+                            <div className="w-1/2">
+                              <FormField
+                                control={formInfo.control}
+                                name="dateOfBirth"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Ngày sinh</FormLabel>
+                                    <FormControl>
+                                      <Input type="datetime-local" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="w-1/2">
+                              <FormField
+                                control={formInfo.control}
+                                name="gender"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Giới tính</FormLabel>
+                                    <FormControl>
+                                      <div className="flex gap-2">
+                                        <Checkbox
+                                          checked={field.value === "Nam"}
+                                          onCheckedChange={() => formInfo.setValue("gender", "Nam")}
+                                        />
+                                        <Label>Nam</Label>
+                                        <Checkbox
+                                          checked={field.value === "Nữ"}
+                                          onCheckedChange={() => formInfo.setValue("gender", "Nữ")}
+                                        />
+                                        <Label>Nữ</Label>
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                        <CardFooter>
+                          <Button type="submit">Cập nhật</Button>
+                        </CardFooter>
+                      </Card>
                     </form>
-                 </Form>
+                  </Form>
                 </TabsContent>
                 <TabsContent value="password">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Đổi mật khẩu</CardTitle>
-                      <CardDescription>
-                       Thay đổi mật khẩu của bạn tại đây. Sau khi hoàn tất bạn sẽ phải đăng nhập lại
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                    <Form {...formPassword}>
+                  <Form {...formPassword}>
                     <form onSubmit={formPassword.handleSubmit(onSubmitPassword)}>
-                      <div className="space-y-1">
-                        <FormField
-                              control={formPassword.control}
-                              name="password"
-                              render={({ field }) => (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Đổi mật khẩu</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <div className="flex gap-4">
+                            <div className="w-1/2">
+                              <FormField
+                                control={formPassword.control}
+                                name="password"
+                                render={({ field }) => (
                                   <FormItem>
-                                  <FormLabel>Mật khẩu hiện tại</FormLabel>
-                                  <FormControl>
-                                      <Input placeholder="Mật khẩu hiện tại" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
+                                    <FormLabel>Mật khẩu</FormLabel>
+                                    <FormControl>
+                                      <Input type="password" placeholder="Mật khẩu" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
                                   </FormItem>
-                              )}
-                          />
-                      </div>
-                      <div className="space-y-1 mt-2">
-                      <FormField
-                              control={formPassword.control}
-                              name="confirmPassword"
-                              render={({ field }) => (
+                                )}
+                              />
+                            </div>
+                            <div className="w-1/2">
+                              <FormField
+                                control={formPassword.control}
+                                name="confirmPassword"
+                                render={({ field }) => (
                                   <FormItem>
-                                  <FormLabel>Mật khẩu mới</FormLabel>
-                                  <FormControl>
-                                      <Input placeholder="Mật khẩu mới" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
+                                    <FormLabel>Xác nhận mật khẩu</FormLabel>
+                                    <FormControl>
+                                      <Input type="password" placeholder="Xác nhận mật khẩu" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
                                   </FormItem>
-                              )}
-                          />
-                      </div>
-                      </form>
-                      </Form>
-                    </CardContent>
-                    <CardFooter>
-                      <Button>Lưu mật khẩu</Button>
-                    </CardFooter>
-                  </Card>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                        <CardFooter>
+                          <Button type="submit">Cập nhật</Button>
+                        </CardFooter>
+                      </Card>
+                    </form>
+                  </Form>
                 </TabsContent>
               </Tabs>
-             
             </div>
           </main>
         </div>
       </div>
     </div>
+          <ToastContainer /> 
+    </>
   );
 };
 

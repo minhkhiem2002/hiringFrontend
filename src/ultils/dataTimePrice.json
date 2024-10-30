@@ -1,0 +1,20 @@
+{
+    "times": [
+      { "time": "07:00 AM", "price": 50, "status": false },
+      { "time": "08:00 AM", "price": 50, "status": true },
+      { "time": "09:00 AM", "price": 60, "status": false },
+      { "time": "10:00 AM", "price": 60, "status": true },
+      { "time": "11:00 AM", "price": 70, "status": false },
+      { "time": "12:00 PM", "price": 70, "status": false },
+      { "time": "01:00 PM", "price": 80, "status": false },
+      { "time": "02:00 PM", "price": 80, "status": true },
+      { "time": "03:00 PM", "price": 90, "status": false },
+      { "time": "04:00 PM", "price": 90, "status": false },
+      { "time": "05:00 PM", "price": 100, "status": true },
+      { "time": "06:00 PM", "price": 100, "status": false },
+      { "time": "07:00 PM", "price": 120, "status": false },
+      { "time": "08:00 PM", "price": 120, "status": false },
+      { "time": "09:00 PM", "price": 130, "status": false }
+    ]
+  }
+  

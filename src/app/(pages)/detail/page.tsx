@@ -1,3 +1,4 @@
+'use client'
 import {
     Card,
     CardContent
@@ -16,8 +17,18 @@ import { RiSendPlaneFill } from "react-icons/ri";
 import { IoMdPricetags } from "react-icons/io";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaRegHeart } from "react-icons/fa";
-import ViewPriceDialog from '../../../components/user/view-price'
+import ViewPriceDialog from '../../../components/user/view-price';
+import axios from 'axios'
 const Detail = () => {
+  
+    const handleBooking = async () => {
+        try {
+            const response = await axios.post('http://localhost:3001/create-payment-link');
+            window.location.href = response.data.checkoutUrl;
+        } catch (error) {
+            console.error('Error calling API:', error);
+        }
+    };
     return (
         <div>
                 <Navbar />
@@ -74,7 +85,7 @@ const Detail = () => {
                     <p className='flex text-base space-x-2 font-medium my-2'><FaRegMoneyBillAlt className='size-5' /> <span> Mức giá: <span className='text-[#DC0F0F]'>150000 VNĐ - 200000 VNĐ</span> / giờ </span></p>
                     <div className = 'flex gap-12'>
                         <ViewPriceDialog/>
-                        <Button className = 'bg-[#31AAB7] text-white px-4 py-0 text-md hover:bg-[#6DCDD8]'> <FaCartShopping  className='size-4 text-white mr-2'/> Đặt sân</Button>
+                        <Button className = 'bg-[#31AAB7] text-white px-4 py-0 text-md hover:bg-[#6DCDD8]' onClick = {handleBooking}> <FaCartShopping  className='size-4 text-white mr-2'/> Đặt sân</Button>
                         <Button variant="outline" className = 'border-[#28A745] text-[#28A745] px-4 py-0 text-md'> <FaRegHeart  className='size-4 text-[#28A745] mr-2'/> Theo dõi</Button>
                     </div>
                     </div>

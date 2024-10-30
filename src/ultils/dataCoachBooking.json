@@ -1,0 +1,19 @@
+{
+    "coaches": [
+      {
+        "id": 1,
+        "name": "Nguyễn Văn A",
+        "sport": "Bóng đá",
+        "price": 300000,
+        "image": "https://res.cloudinary.com/dpvmnqgkw/image/upload/v1716321177/DACN/images_dhzi0h.jpg"
+      },
+      {
+        "id": 2,
+        "name": "Trần Văn B",
+        "sport": "Cầu lông",
+        "price": 250000,
+        "image": "https://res.cloudinary.com/dpvmnqgkw/image/upload/v1716321177/DACN/images_dhzi0h.jpg"
+      }
+    ]
+  }
+  

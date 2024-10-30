@@ -1,0 +1,111 @@
+[
+    {
+      "id": "1",
+      "title": "Soccer Ball",
+      "type": "football",
+      "priceRange": "200000-400000",
+      "rating": 5,
+      "reviews": 120,
+      "description": "Durable soccer ball for all weather conditions."
+    },
+    {
+      "id": "2",
+      "title": "Basketball",
+      "type": "basketball",
+      "priceRange": "300000-500000",
+      "rating": 4,
+      "reviews": 95,
+      "description": "High-grip surface for optimal control."
+    },
+    {
+      "id": "3",
+      "title": "Volleyball",
+      "type": "volleyball",
+      "priceRange": "150000-300000",
+      "rating": 3,
+      "reviews": 80,
+      "description": "Soft touch volleyball, ideal for beginners."
+    },
+    {
+      "id": "4",
+      "title": "Badminton Racket",
+      "type": "badminton",
+      "priceRange": "250000-600000",
+      "rating": 4,
+      "reviews": 110,
+      "description": "Lightweight racket for fast, precise shots."
+    },
+    {
+      "id": "5",
+      "title": "Swimming Goggles",
+      "type": "swimming",
+      "priceRange": "100000-250000",
+      "rating": 5,
+      "reviews": 75,
+      "description": "Anti-fog, UV protection swimming goggles."
+    },
+    {
+      "id": "6",
+      "title": "Indoor Soccer Shoes",
+      "type": "indoor",
+      "priceRange": "500000-800000",
+      "rating": 4,
+      "reviews": 60,
+      "description": "High-grip indoor soccer shoes."
+    },
+    {
+      "id": "7",
+      "title": "Badminton Shuttlecock",
+      "type": "badminton",
+      "priceRange": "50000-100000",
+      "rating": 3,
+      "reviews": 45,
+      "description": "Durable shuttlecock for extended play."
+    },
+    {
+      "id": "8",
+      "title": "Basketball Hoop",
+      "type": "basketball",
+      "priceRange": "700000-1000000",
+      "rating": 5,
+      "reviews": 50,
+      "description": "Adjustable height, durable hoop for outdoor play."
+    },
+    {
+      "id": "9",
+      "title": "Yoga Mat",
+      "type": "indoor",
+      "priceRange": "200000-350000",
+      "rating": 4,
+      "reviews": 130,
+      "description": "Non-slip yoga mat for comfortable exercise."
+    },
+    {
+      "id": "10",
+      "title": "Swim Fins",
+      "type": "swimming",
+      "priceRange": "300000-500000",
+      "rating": 4,
+      "reviews": 40,
+      "description": "Flexible swim fins for enhanced performance."
+    },
+    {
+      "id": "11",
+      "title": "Foam Roller",
+      "type": "indoor",
+      "priceRange": "100000-200000",
+      "rating": 5,
+      "reviews": 25,
+      "description": "Foam roller for muscle recovery."
+    },
+    {
+      "id": "12",
+      "title": "Football Goal Net",
+      "type": "football",
+      "priceRange": "500000-900000",
+      "rating": 4,
+      "reviews": 20,
+      "description": "Durable net for professional football goals."
+    }
+  ]
+  

@@ -1,58 +1,124 @@
-import {create} from 'zustand';
-import {UserInfo, StateLogin} from '../interfaces/authInterface'
-import {getInfoApi} from '../api/authApi'
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { UserInfo, UserPasswordUpdate } from '../interfaces/authInterface';
+import { getInfoApi, updateInfoApi, updatePasswordApi, updateAvatarApi } from '../api/authApi';
 
 type getInfoState = {
-    userInfo: UserInfo | null,
-}
+  userInfo: UserInfo | null;
+  loading: boolean;
+};
 
 type getInfoAction = {
-    getInfo: () => Promise<UserInfo>;
-}
+  getInfo: (userId: string | null) => Promise<UserInfo | null>;
+};
 
 type setInfoAction = {
-    setInfo: (userData: UserInfo) => void;
+  setInfo: (userData: UserInfo | null) => void;
+};
+
+type UpdateInfoAction = {
+  updateInfo: (userData: UserInfo | null) => Promise<void>;
+};
+
+type UpdateAvatarAction = {
+  updateAvatar: (avatarData: FormData) => Promise<void>;
+};
+
+type updatePasswordAction = {
+  updatePassword: (userData: UserPasswordUpdate) => Promise<void>;
 };
 
 type setStateLogin = {
-    isLogin: StateLogin | false | true,
-}
+  isLogin: boolean;
+};
 
 type setActionLogin = {
-    setState: (newState: StateLogin) => void;
-}
+  setState: (newState: boolean) => void;
+};
 
-export const useUserStore = create<getInfoState & getInfoAction & setInfoAction>((set) => ({
-    userInfo: null,
-    getInfo: async () => {
+export const useUserStore = create<
+  getInfoState & getInfoAction & setInfoAction & setStateLogin & setActionLogin & UpdateInfoAction & UpdateAvatarAction & updatePasswordAction
+>(
+  persist(
+    (set) => ({
+      userInfo: null,
+      isLogin: false,
+      loading: false, 
+
+      getInfo: async (userId: string) => {
+        set({ loading: true });
         try {
-            const access_token = localStorage.getItem('access_token');
-            console.log('Get here', access_token)
-            if (!access_token) {
-                console.error('No access token found in localStorage');
-                return; 
-            }
-            const userInfo = await getInfoApi(access_token)
-            set({ userInfo: userInfo.data });
-            return userInfo.data
+          const userInfo = await getInfoApi(userId);
+          if (userInfo) {
+            set({ userInfo, isLogin: true });
+            return userInfo;
+          }
+        } catch (error) {
+          console.error('Failed to fetch user data', error);
+        } finally {
+          set({ loading: false });
         }
-        catch (error) {
-            console.error('Failed to fetch user data', error);
-        }
-    },
-    setInfo: (userData: UserInfo) => {
+        return null;
+      },
+
+      setInfo: (userData: UserInfo) => {
         set({ userInfo: userData });
-    },
-}))
+      },
 
-export const useStateLoginStore = create<setStateLogin & setActionLogin>((set) => ({
-    isLogin: false,
-    setState: async (newState: StateLogin) => {
+      updateInfo: async (userData: UserInfoUpdate) => {
+        set({ loading: true });
         try {
-            set({isLogin: newState})
+          const updatedUserInfo = await updateInfoApi(userData);
+          if (updatedUserInfo) {
+            set({ userInfo: updatedUserInfo, isLogin: true });
+            return true
+          }
+        } catch (error) {
+          console.error('Failed to update user data', error);
+          return false
+        } finally {
+          set({ loading: false });
         }
-        catch (error) {
-            console.error('Failed to set state', error);
+      },
+
+      updateAvatar: async (avatarData: FormData) => {
+        set({ loading: true });
+        try {
+          const updatedAvatar = await updateAvatarApi(avatarData);
+          if (updatedAvatar) {
+            set((state) => ({
+              userInfo: { ...state.userInfo, avatar: updatedAvatar } as UserInfo,
+            }));
+          }
+          return updatedAvatar.data;
+        } catch (error) {
+          console.error('Failed to update avatar', error);
+        } finally {
+          set({ loading: false });
         }
+      },
+
+      updatePassword: async (userData: UserPasswordUpdate) => {
+        set({ loading: true });
+        try {
+          const updatedPassword = await updatePasswordApi(userData);
+          if (updatedPassword) {
+            set({ isLogin: true });
+          }
+        } catch (error) {
+          console.error('Failed to update user password', error);
+        } finally {
+          set({ loading: false });
+        }
+      },
+
+      setState: (newState: boolean) => {
+        set({ isLogin: newState });
+      },
+    }),
+    {
+      name: 'user-storage',
+      getStorage: () => localStorage,
     }
-}))
+  )
+);

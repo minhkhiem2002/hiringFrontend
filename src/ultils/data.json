@@ -1,0 +1,134 @@
+[
+  {
+    "id": "1",
+    "title": "Sân Bóng Đá khu A",
+    "location": "Quận 1, Hồ Chí Minh",
+    "description": "Sân mới đầu tư | Hiện đại",
+    "priceRange": "150000 VNĐ - 200000 VNĐ",
+    "rating": 4.7,
+    "reviews": 650,
+    "type": "football",
+    "district": "Quận 1"
+  },
+  {
+    "id": "2",
+    "title": "Sân Bóng Rổ khu B",
+    "location": "Quận Bình Thạnh, Hồ Chí Minh",
+    "description": "Sân cũ nhưng được bảo trì thường xuyên",
+    "priceRange": "100000 VNĐ - 150000 VNĐ",
+    "rating": 4.2,
+    "reviews": 300,
+    "type": "basketball",
+    "district": "Quận 3"
+  },
+  {
+    "id": "3",
+    "title": "Sân Bóng Chuyền khu C",
+    "location": "Sân liên hợp ĐHQG, Dĩ An, Bình Dương",
+    "description": "Sân mới, cơ sở vật chất tốt",
+    "priceRange": "200000 VNĐ - 250000 VNĐ",
+    "rating": 4.5,
+    "reviews": 400,
+    "type": "volleyball",
+    "district": "Quận 5"
+  },
+  {
+    "id": "4",
+    "title": "Sân Cầu Lông khu D",
+    "location": "Sân liên hợp ĐHQG, Dĩ An, Bình Dương",
+    "description": "Sân có đèn chiếu sáng tốt",
+    "priceRange": "120000 VNĐ - 180000 VNĐ",
+    "rating": 4.0,
+    "reviews": 250,
+    "type": "badminton",
+    "district": "Quận 10"
+  },
+  {
+    "id": "5",
+    "title": "Sân Bơi Lội khu E",
+    "location": "Sân liên hợp ĐHQG, Dĩ An, Bình Dương",
+    "description": "Sân sạch sẽ, thoáng mát",
+    "priceRange": "130000 VNĐ - 170000 VNĐ",
+    "rating": 4.1,
+    "reviews": 320,
+    "type": "swimming",
+    "district": "Quận Bình Thạnh"
+  },
+  {
+    "id": "6",
+    "title": "Sân Thể Thao Trong Nhà khu F",
+    "location": "Sân liên hợp ĐHQG, Dĩ An, Bình Dương",
+    "description": "Sân có hệ thống âm thanh hiện đại",
+    "priceRange": "140000 VNĐ - 190000 VNĐ",
+    "rating": 4.3,
+    "reviews": 280,
+    "type": "indoor",
+    "district": "Quận Gò Vấp"
+  },
+  {
+    "id": "7",
+    "title": "Sân Bóng Đá khu G",
+    "location": "Sân liên hợp ĐHQG, Dĩ An, Bình Dương",
+    "description": "Sân có sân khấu cho các sự kiện",
+    "priceRange": "160000 VNĐ - 210000 VNĐ",
+    "rating": 4.6,
+    "reviews": 370,
+    "type": "football",
+    "district": "Quận 1"
+  },
+  {
+    "id": "8",
+    "title": "Sân Bóng Rổ khu H",
+    "location": "Sân liên hợp ĐHQG, Dĩ An, Bình Dương",
+    "description": "Sân có sân khấu và khu vực chờ",
+    "priceRange": "150000 VNĐ - 200000 VNĐ",
+    "rating": 4.4,
+    "reviews": 330,
+    "type": "basketball",
+    "district": "Quận 3"
+  },
+  {
+    "id": "9",
+    "title": "Sân Bóng Chuyền khu I",
+    "location": "Sân liên hợp ĐHQG, Dĩ An, Bình Dương",
+    "description": "Sân có phòng thay đồ riêng biệt",
+    "priceRange": "170000 VNĐ - 220000 VNĐ",
+    "rating": 3.8,
+    "reviews": 400,
+    "type": "volleyball",
+    "district": "Quận 5"
+  },
+  {
+    "id": "10",
+    "title": "Sân Cầu Lông khu J",
+    "location": "Sân liên hợp ĐHQG, Dĩ An, Bình Dương",
+    "description": "Sân mới, mặt cỏ tốt",
+    "priceRange": "180000 VNĐ - 230000 VNĐ",
+    "rating": 4.6,
+    "reviews": 350,
+    "type": "badminton",
+    "district": "Quận 5"
+  },
+  {
+    "id": "11",
+    "title": "Sân Bơi Lội khu K",
+    "location": "Sân liên hợp ĐHQG, Dĩ An, Bình Dương",
+    "description": "Sân có khu vực ăn uống",
+    "priceRange": "190000 VNĐ - 240000 VNĐ",
+    "rating": 4.7,
+    "reviews": 300,
+    "type": "swimming",
+    "district": "Quận Bình Thạnh"
+  },
+  {
+    "id": "12",
+    "title": "Sân Bơi Lội khu L",
+    "location": "Sân liên hợp ĐHQG, Dĩ An, Bình Dương",
+    "description": "Sân có đầy đủ tiện nghi",
+    "priceRange": "200000 VNĐ - 250000 VNĐ",
+    "rating": 4.9,
+    "reviews": 320,
+    "type": "swimming",
+    "district": "Quận Gò Vấp"
+  }
+]

@@ -1,0 +1,29 @@
+{
+    "fields": [
+      {
+        "id": 1,
+        "fieldName": "Sân A",
+        "location": "Quận 1, TP. HCM",
+        "type": "Bóng đá",
+        "price": 500000,
+        "image": "https://res.cloudinary.com/dpvmnqgkw/image/upload/v1716321177/DACN/images_dhzi0h.jpg",
+        "times": [
+          { "time": "07:00 AM", "price": 50, "status": false },
+          { "time": "08:00 AM", "price": 50, "status": true }
+        ]
+      },
+      {
+        "id": 2,
+        "fieldName": "Sân B",
+        "location": "Quận 3, TP. HCM",
+        "type": "Cầu lông",
+        "price": 200000,
+        "image": "https://res.cloudinary.com/dpvmnqgkw/image/upload/v1716321177/DACN/images_dhzi0h.jpg",
+        "times": [
+          { "time": "09:00 AM", "price": 60, "status": true },
+          { "time": "10:00 AM", "price": 60, "status": false }
+        ]
+      }
+    ]
+  }
+  

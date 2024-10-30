@@ -1,44 +1,103 @@
 "use client";
-import { useState, useEffect } from "react";
-import { IoMenu, IoClose } from "react-icons/io5";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Logo from "../../../public/images/Logo.png";
-import MiniLogo from "../../../public/images/MiniAvatar.jpg";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuIndicator,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  NavigationMenuViewport,
-  navigationMenuTriggerStyle
-} from "@/components/ui/navigation-menu";
-import React from "react";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import Login from "./nav-login";
-import Register from "./nav-register";
-import {useUserStore, useStateLoginStore} from '@/services/store/userStore'
+import { Input } from "@/components/ui/input";
+import UserIcon from '../../../public/icons/User.svg'
+import LogoutIcon from '../../../public/icons/Logout Rounded.svg'
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { useUserStore } from "@/services/store/userStore";
+import { useRouter } from "next/navigation";
+import Loading from "@/components/user/loading";
+import {
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  Divider,
+  Grid,
+  IconButton,
+  Menu,
+  MenuItem,
+  Skeleton,
+  Tooltip,
+} from "@mui/material";
+
 const Navbar = () => {
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const isLogin = useUserStore((state) => state.isLogin);
+  const info = useUserStore((state) => state.userInfo);
+  const loading = useUserStore((state) => state.loading);
+  const setState = useUserStore((state) => state.setState);
+  const setInfo = useUserStore((state) => state.setInfo);
+  const getInfo = useUserStore((state) => state.getInfo);
+
+  useEffect(() => {
+    const id = sessionStorage.getItem("userId");
+    if (id || info) {
+      getInfo(id);
+    } else {
+      setState(false);
+      setInfo(null);
+    }
+  }, []);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
-  const { isLogin, setState } = useStateLoginStore();
+  const handleLogout = () => {
+    setState(false);
+    setInfo(null);
+    sessionStorage.removeItem("userId");
+    router.push("/login", { scroll: false });
+  };
+
+  const handleRegister = () => {
+    router.push("/register", { scroll: false });
+  };
+
+  const handleLogin = () => {
+    router.push("/login", { scroll: false });
+  };
+
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [openDrawerMatKhau, setOpenDrawerMatKhau] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const thongtinTaikhoan = () => {
+    setOpenDrawer(true);
+  };
+  const doimatkhau = () => {
+    setOpenDrawerMatKhau(true);
+  };
+  const chuyenPhanhe = () => {
+    // sessionStorage.setItem("phanhe", null);
+    // navigate("/phanhe");
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleClick = (event: any) => {
+    setAnchorEl(event.currentTarget);
+  };
 
   return (
-    <header
-      className='bg-white py-5 border-b shadow-md sticky top-0 left-0 z-30'
-    >
-      <nav className="flex justify-between items-center w-[92%] mx-auto">
-        <div>
+    <Box className="w-full bg-slate-100">
+      {loading && <Loading />}
+      <Grid
+        container
+        alignItems="center"
+        spacing={2}
+        className="bg-white py-4 border-b shadow-md sticky top-0 z-30 px-5"
+      >
+        {/* Logo */}
+        <Grid item xs={1.5}>
           <Link href="/">
             <Image
               src={Logo}
@@ -48,153 +107,123 @@ const Navbar = () => {
               className="w-30 md:w-40 md:h-8 cursor-pointer"
             />
           </Link>
-        </div>
-        <div className="relative ml-auto flex-1 md:grow-0 md:gap-[2vw] gap-2 mr-2 md:ml-4 md:mr-auto">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search..."
-            className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-          />
-        </div>
-        <div
-          className={`nav-links duration-500 ${menuOpen ? "top-[9%] z-10" : "top-[-100%]"
-            } md:static absolute bg-white md:min-h-fit min-h-[15vh]  left-0 w-full flex items-center px-5`}
-        >
-          <ul className="flex md:flex-row flex-col md:items-center md:gap-[2vw] gap-2">
-            <li>
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuTrigger className="text-md z-10">
-                      Thông tin sân
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent className="z-10">
-                      <ul className="grid grid-cols-[.5fr_0.75fr] w-[300px] gap-3 p-6 md:w-[400px] md:grid-cols-[.75fr_1fr]">
-                        <li className="row-span-3">
-                          <NavigationMenuLink asChild>
-                            <Image
-                              src={MiniLogo}
-                              width={50}
-                              height={100}
-                              alt="Logo"
-                              className="w-full h-full rounded-md"
-                            />
-                          </NavigationMenuLink>
-                        </li>
-                        <ListItem href="/docs" title="Giới thiệu">
-                          Sứ mệnh và tầm nhìn của sân thể thao Spotta
-                        </ListItem>
-                        <ListItem
-                          href="/docs/installation"
-                          title="Đặt sân"
-                        >
-                          Tìm kiếm và đặt sân
-                        </ListItem>
-                        <ListItem
-                          href="/docs/primitives/typography"
-                          title="Chính sách và bảo mật"
-                        >
-                          Chính sách và bảo mật thông tin cho người dùng
-                        </ListItem>
-                      </ul>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </li>
-            <li>
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <Link href="/docs" legacyBehavior passHref>
-                 
-                        Sự kiện
-                
-                    </Link>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </li>
-            <li>
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <Link href="/docs" legacyBehavior passHref>
-               
-                        Tin tức
-              
-                    </Link>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </li>
-            <li>
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <Link href="/faq" legacyBehavior passHref>
-          
-                        FAQ
-          
-                    </Link>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </li>
-            <li>
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <Link href="/user/account" legacyBehavior passHref>
-                     
-                        Liên hệ
-                 
-                    </Link>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </li>
-          </ul>
-        </div>
-        <div className="flex items-center gap-2 md:gap-6">
-          <Login/>
-          <Register/>
-          <div
-            onClick={toggleMenu}
-            className="text-3xl cursor-pointer md:hidden"
-          >
+        </Grid>
+
+        {/* Navigation Links */}
+        <Grid item xs={7.5} container spacing={2} justifyContent="start" alignItems="center" className = 'mt-1'>
+            <Input
+              type="search"
+              placeholder="Search..."
+              className="rounded-lg bg-background pl-8 ml-4 w-[400px]"
+            />
+          <Link href="/filter" className="mx-3">Thông tin sân</Link>
+          <Link href="/docs" className="mx-3">Sự kiện</Link>
+          <Link href="/docs" className="mx-3">Tin tức</Link>
+          <Link href="/faq" className="mx-3">FAQ</Link>
+          <Link href="/contact" className="mx-3">Liên hệ</Link>
+        </Grid>
+
+        {/* User Info and Buttons */}
+        <Grid item xs={3} container alignItems="center" justifyContent="flex-end">
+          <Box className="flex items-center gap-2">
+            {info ? (
+              <Tooltip title="Tài khoản của tôi">
+                <IconButton size="small" onClick={handleClick}>
+                  <Avatar
+                    className="w-10 h-10"
+                    alt="User Avatar"
+                    src={info.avatar || undefined}
+                  >
+                    {!info.avatar && `${info.firstName} ${info.lastName}`}
+                  </Avatar>
+                </IconButton>
+              </Tooltip>
+            ) : isLogin ? (
+              <Skeleton variant="circular" width={40} height={40} />
+            ) : (
+              <>
+                <Button onClick={handleRegister} className="bg-red-500 hover:bg-red-300">
+                  Đăng ký
+                </Button>
+                <Button onClick={handleLogin} className="bg-red-500 hover:bg-red-300">
+                  Đăng nhập
+                </Button>
+              </>
+            )}
+          </Box>
+        </Grid>
+      </Grid>
+      <Menu
+        anchorEl={anchorEl}
+        id="account-menu"
+        open={open}
+        onClose={handleClose}
+        onClick={handleClose}
+        PaperProps={{
+          elevation: 0,
+          sx: {
+            marginTop: '4px',
+            border: '1px solid #d3d4d5',
+            boxShadow: '0px 1px 3px rgba(0,0,0,0.12), 0px 1px 2px rgba(0,0,0,0.24)',
+            borderRadius: '10px'
+          }
+        }}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      >
+        <MenuItem onClick={thongtinTaikhoan}>
+          <div className='w-full flex py-1'>
+            <img
+              src={UserIcon}
+              alt="icon_menu_users"
+              width={20}
+              className="mr-2"
+            />
+            Thông tin tài khoản
           </div>
-        </div>
-      </nav>
-    </header>
+        </MenuItem>
+
+        <MenuItem onClick={doimatkhau}>
+          <div className='w-full flex py-1'>
+            <img
+              src={UserIcon}
+              alt="icon_menu_password"
+              width={20}
+              className="mr-2"
+            />
+            Đổi mật khẩu
+          </div>
+        </MenuItem>
+
+        <MenuItem onClick={chuyenPhanhe}>
+          <div className='w-full flex py-1'>
+            <img
+              src={UserIcon}
+              alt="icon_menu_change"
+              width={20}
+              className="mr-2"
+            />
+            Chuyển phần mềm
+          </div>
+        </MenuItem>
+        <Divider />
+        <MenuItem
+          onClick={handleLogout}
+          className='mt-1'
+        >
+          <div className='w-full flex py-1'>
+            <img
+              src={LogoutIcon}
+              alt="icon_menu_logout"
+              width={20}
+              className="mr-2"
+            />
+            Đăng xuất
+          </div>
+        </MenuItem>
+      </Menu>
+    </Box>
   );
 };
-
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
 
 export default Navbar;

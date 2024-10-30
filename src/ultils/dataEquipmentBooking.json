@@ -1,0 +1,19 @@
+{
+    "equipments": [
+      {
+        "id": 1,
+        "name": "Giày bóng đá",
+        "category": "Giày thể thao",
+        "price": 100000,
+        "image": "https://res.cloudinary.com/dpvmnqgkw/image/upload/v1716321177/DACN/images_dhzi0h.jpg"
+      },
+      {
+        "id": 2,
+        "name": "Vợt cầu lông",
+        "category": "Vợt thể thao",
+        "price": 150000,
+        "image": "https://res.cloudinary.com/dpvmnqgkw/image/upload/v1716321177/DACN/images_dhzi0h.jpg"
+      }
+    ]
+  }
+  

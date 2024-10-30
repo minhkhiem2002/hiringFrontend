@@ -1,27 +1,45 @@
 export interface User {
-    access_token: string;
-    refresh_token: string;
-}
+    id: string;
+    userRoleId: string;
+    email: string;
+    token: string;
+    role: string;
+  }
+  
+  export interface SignUpUser {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    confirmPassword: string;
+  }
+  
+  export interface UserInfo {
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    location: string;
+    dateOfBirth: string;
+    gender: string;
+    role: string;
+    avatar: string;
+  }
 
-export interface SignUpUser {
-    Fname: string, 
-    Lname: string, 
-    email: string,
-    phone: string,
-    password: string, 
-    confirmPassword: string
-}
-
-export interface UserInfo {
-    Fname: string, 
-    Lname: string, 
-    email: string,
-    phone: string,
-    password: string, 
-    role: string,
-    avatar: string
-}
-
-export interface StateLogin {
+  
+  export interface UserPasswordUpdate {
+    password: string;
+    confirmPassword: string;
+  }
+  
+  export interface StateLogin {
     isLogin: boolean;
-}
+  }
+  
+  export interface LoginApiResponse {
+    status: number;
+    access_token: string;
+    userId: string;
+    refresh_token: string;
+    message?: string;
+  }
+  

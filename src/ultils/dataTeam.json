@@ -1,0 +1,123 @@
+[
+    {
+      "id": 1,
+      "name": "CLB Real Madrid",
+      "level": "Chuyên nghiệp",
+      "location": "Sân Liên Hợp ĐHQG, Dĩ An, Bình Dương",
+      "contact": "0123456789",
+      "members": 22,
+      "description": "Một trong những câu lạc bộ bóng đá nổi tiếng nhất thế giới với bề dày thành tích ấn tượng.",
+      "achievements": "14 lần vô địch UEFA Champions League, 35 lần vô địch La Liga",
+      "field": "Sân cỏ",
+      "area": "Hồ Chí Minh"
+    },
+    {
+      "id": 2,
+      "name": "CLB Barcelona",
+      "level": "Chuyên nghiệp",
+      "location": "Sân Thống Nhất, Quận 10, TP.HCM",
+      "contact": "0987654321",
+      "members": 20,
+      "description": "Câu lạc bộ với lối chơi tiki-taka, nổi tiếng với sự đoàn kết và khả năng tấn công nhanh.",
+      "achievements": "5 lần vô địch UEFA Champions League, 26 lần vô địch La Liga",
+      "field": "Sân cỏ",
+      "area": "Hồ Chí Minh"
+    },
+    {
+      "id": 3,
+      "name": "CLB Manchester United",
+      "level": "Chuyên nghiệp",
+      "location": "Sân Vận Động Mỹ Đình, Hà Nội",
+      "contact": "0123478901",
+      "members": 18,
+      "description": "Câu lạc bộ giàu truyền thống nhất nước Anh với lịch sử lâu đời và nhiều thành tích.",
+      "achievements": "20 lần vô địch Ngoại Hạng Anh, 3 lần vô địch UEFA Champions League",
+      "field": "Sân cỏ",
+      "area": "Hà Nội"
+    },
+    {
+      "id": 4,
+      "name": "CLB Bayern Munich",
+      "level": "Chuyên nghiệp",
+      "location": "Sân Phú Thọ, Quận 11, TP.HCM",
+      "contact": "0123467890",
+      "members": 21,
+      "description": "Đội bóng mạnh nhất nước Đức, nổi tiếng với lối chơi tấn công mạnh mẽ và kỷ luật.",
+      "achievements": "6 lần vô địch UEFA Champions League, 32 lần vô địch Bundesliga",
+      "field": "Sân cỏ",
+      "area": "Hồ Chí Minh"
+    },
+    {
+      "id": 5,
+      "name": "CLB Juventus",
+      "level": "Chuyên nghiệp",
+      "location": "Sân Vận Động Bình Dương, Dĩ An, Bình Dương",
+      "contact": "0123456781",
+      "members": 19,
+      "description": "Câu lạc bộ bóng đá lớn nhất Italy với bề dày truyền thống và hàng loạt danh hiệu.",
+      "achievements": "2 lần vô địch UEFA Champions League, 36 lần vô địch Serie A",
+      "field": "Sân đất",
+      "area": "Bình Dương"
+    },
+    {
+      "id": 6,
+      "name": "CLB Chelsea",
+      "level": "Chuyên nghiệp",
+      "location": "Sân Hàng Đẫy, Hà Nội",
+      "contact": "0987612345",
+      "members": 17,
+      "description": "Câu lạc bộ nổi tiếng với những màn trình diễn mạnh mẽ tại các giải đấu quốc nội và quốc tế.",
+      "achievements": "2 lần vô địch UEFA Champions League, 6 lần vô địch Ngoại Hạng Anh",
+      "field": "Sân cỏ",
+      "area": "Hà Nội"
+    },
+    {
+      "id": 7,
+      "name": "CLB Paris Saint-Germain",
+      "level": "Chuyên nghiệp",
+      "location": "Sân Phú Nhuận, Quận Phú Nhuận, TP.HCM",
+      "contact": "0987654320",
+      "members": 23,
+      "description": "Câu lạc bộ hàng đầu nước Pháp, nổi tiếng với đội hình gồm nhiều ngôi sao hàng đầu thế giới.",
+      "achievements": "9 lần vô địch Ligue 1, nhiều lần vô địch các cúp quốc nội",
+      "field": "Sân cỏ",
+      "area": "Hồ Chí Minh"
+    },
+    {
+      "id": 8,
+      "name": "CLB Liverpool",
+      "level": "Chuyên nghiệp",
+      "location": "Sân Vận Động Cần Thơ, Cần Thơ",
+      "contact": "0123456709",
+      "members": 22,
+      "description": "Câu lạc bộ với tinh thần đoàn kết và lối chơi tấn công phóng khoáng.",
+      "achievements": "6 lần vô địch UEFA Champions League, 19 lần vô địch Ngoại Hạng Anh",
+      "field": "Sân đất",
+      "area": "Cần Thơ"
+    },
+    {
+      "id": 9,
+      "name": "CLB Arsenal",
+      "level": "Chuyên nghiệp",
+      "location": "Sân Vận Động Vinh, Nghệ An",
+      "contact": "0987654398",
+      "members": 16,
+      "description": "Câu lạc bộ với lịch sử lâu đời, nổi tiếng với lối chơi đẹp mắt và tấn công tổ chức.",
+      "achievements": "13 lần vô địch Ngoại Hạng Anh, 14 lần vô địch FA Cup",
+      "field": "Sân cỏ",
+      "area": "Nghệ An"
+    },
+    {
+      "id": 10,
+      "name": "CLB AC Milan",
+      "level": "Chuyên nghiệp",
+      "location": "Sân Vận Động Pleiku, Gia Lai",
+      "contact": "0123467809",
+      "members": 20,
+      "description": "Một trong những câu lạc bộ thành công nhất nước Ý, nổi tiếng với lối chơi phòng ngự phản công.",
+      "achievements": "7 lần vô địch UEFA Champions League, 18 lần vô địch Serie A",
+      "field": "Sân cỏ",
+      "area": "Gia Lai"
+    }
+  ]
+  
