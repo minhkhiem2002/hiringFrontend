@@ -17,17 +17,25 @@ import {
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
 import { Divider, Button } from '@mui/material';
+import * as signalR from "@microsoft/signalr";
+import { useRouter } from 'next/navigation'
+import axios from "axios";
 
 const steps = ['Chọn thời gian', 'Nhập thông tin', 'Xác nhận & Thanh toán'];
 
 interface TimeSlot {
-  time: string;
+  id: string;
+  startTime: string;
+  endTime: string;
   price: number;
-  status: boolean;
+  status: boolean; 
 }
-
-export default function BookingPage() {
+export default function BookingPage({ params }: { params: { slug: string } }) {
+  const router = useRouter()
+  const id = params.slug;
+  console.log('Slug', id)
   const [activeStep, setActiveStep] = useState(0);
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [userInfo, setUserInfo] = useState({ name: '', email: '', phone: '' });
@@ -36,24 +44,65 @@ export default function BookingPage() {
 
   useEffect(() => {
     const newTotal = selectedTimes.reduce((acc, time) => {
-      const price = dataTimePrice.times.find((t: TimeSlot) => t.time === time)?.price || 0;
+      const price = timeSlots.find((t: TimeSlot) => t.startTime === time)?.price || 0;
       return acc + price;
     }, 0);
     setTotalPrice(newTotal);
   }, [selectedTimes]);
 
-  const fetchDataForDate = async (date: string) => {
+  const fetchTimeSlots = async () => {
     try {
-      console.log('Call API', date);
+      const response = await axios.get(
+        `https://sportappdemo.azurewebsites.net/api/SportField/GetScheduler`, {
+          params: {
+            EndPoint: decodeURIComponent(id),
+            BookingDate: selectedDate,
+          },
+        }
+      );
+      setTimeSlots(response.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Lỗi khi gọi API:", error);
     }
   };
+
+  useEffect(() => {
+    fetchTimeSlots();
+
+    // Thiết lập kết nối SignalR
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("/bookingHub")
+      .build();
+
+    connection.on(
+      "UpdateTimeSlot",
+      (sportFieldId: number, timeSlotId: string) => {
+        // Cập nhật trạng thái khung giờ khi nhận tín hiệu từ SignalR
+        setTimeSlots((prevSlots) =>
+          prevSlots.map((slot) =>
+            slot.id === timeSlotId ? { ...slot, status: true } : slot
+          )
+        );
+      }
+    );
+
+    connection
+      .start()
+      .then(() => {
+        console.log("Kết nối thành công tới SignalR BookingHub");
+      })
+      .catch((err) => {
+        console.error(err.toString());
+      });
+
+    return () => {
+      connection.stop();
+    };
+  }, [selectedDate]);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const date = e.target.value;
     setSelectedDate(date);
-    fetchDataForDate(date);
   };
 
   const handleTimeClick = (time: string, status: boolean) => {
@@ -129,15 +178,15 @@ export default function BookingPage() {
                   </div>
                   <h2 className="text-lg font-bold">Chọn thời gian</h2>
                   <div className="grid grid-cols-3 gap-4">
-                    {dataTimePrice.times.map(({ time, price, status }: TimeSlot) => (
+                    {timeSlots.map(({ id,startTime,endTime, price, status }: TimeSlot) => (
                       <button
-                        key={time}
-                        className={`p-3 border ${status ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : selectedTimes.includes(time) ? 'bg-green-500' : 'bg-white'}`}
-                        onClick={() => handleTimeClick(time, status)}
+                        key={id}
+                        className={`p-3 border ${status ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : selectedTimes.includes(startTime) ? 'bg-green-500' : 'bg-white'}`}
+                        onClick={() => handleTimeClick(startTime, status)}
                         disabled={status}
                         style={{ margin: '6px' }}
                       >
-                        {time} - ${price}
+                        {startTime} - {endTime} - ${price}
                       </button>
                     ))}
                   </div>

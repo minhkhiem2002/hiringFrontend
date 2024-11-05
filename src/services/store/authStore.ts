@@ -57,7 +57,7 @@ export const useSignUpStore = create<SUpState & SUpAction>(
     (set) => ({
       signUpUser: null,
 
-      register: async (email: string, password: string, confirmPassword: string, firstName: string, lastName: string) => {
+      register: async (firstName: string, lastName: string, email: string, password: string, confirmPassword: string) => {
         try {
           const response = await registerApi(firstName, lastName, email, password, confirmPassword);
           if (response == true)

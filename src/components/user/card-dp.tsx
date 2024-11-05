@@ -10,13 +10,12 @@ import Field from "../../../public/images/Field.jpg";
 interface CardDpProps {
   title: string;
   location: string;
-  description: string;
   priceRange: string;
   rating: number;
   reviews: number;
 }
 
-const CardDp = ({ title, location, description, priceRange, rating, reviews }: CardDpProps) => {
+const CardDp = ({ title, location, priceRange, rating, reviews }: CardDpProps) => {
   return (
     <div className="flex flex-col">
       <Card className="w-[350px] h-[400px] relative transition-transform hover:shadow-xl cursor-pointer">
@@ -29,9 +28,9 @@ const CardDp = ({ title, location, description, priceRange, rating, reviews }: C
             <CardTitle className='flex text-sm space-x-2 text-[#7D92A1] font-medium my-2'>
               <CiLocationOn className='size-5' /> <span>{location}</span>
             </CardTitle>
-            <CardTitle className='flex text-sm space-x-2 text-[#7D92A1] font-medium my-2'>
+            {/* <CardTitle className='flex text-sm space-x-2 text-[#7D92A1] font-medium my-2'>
               <TiNews className='size-5' /> <span>{description}</span>
-            </CardTitle>
+            </CardTitle> */}
             <CardTitle className='flex text-sm space-x-2 text-[#7D92A1] font-medium my-2'>
               <FaRegMoneyBillAlt className='size-5' /> <span className='text-[#DC0F0F]'>{priceRange}</span> / giờ
             </CardTitle>

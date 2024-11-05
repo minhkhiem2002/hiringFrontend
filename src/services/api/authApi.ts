@@ -36,13 +36,13 @@ export const registerApi = async (
 };
 
 // GET-INFO
-export const getInfoApi = async (userId: string) => {
+export const getInfoApi = async (userId: string | null) => {
   const response = await axios.get(`${API_URL}/GetUser?UserId=${userId}`);
   return response.data;
 };
 
 // UPDATE-INFO (PUT)
-export const updateInfoApi = async (data: UserInfo) => {
+export const updateInfoApi = async (data: UserInfo | null) => {
   const userId = sessionStorage.getItem('userId');
   if (!userId) return;
   

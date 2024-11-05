@@ -12,42 +12,80 @@ import { CiLocationOn } from "react-icons/ci";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaRegHeart } from "react-icons/fa";
 import ViewPriceDialog from "@/components/user/view-price";
-import data from "@/ultils/data.json";
 import Navbar from "@/components/user/main-nav";
 import { TiNews } from "react-icons/ti";
 import axios from "axios";
 import { Grid } from "@mui/material";
 import { useRouter } from 'next/navigation'
-import CommentSection from './comment.tsx'
+import CommentSection from './comment'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+
+interface ImageField {
+  id: string;
+  pictureUrl: string;
+  publicId: string;
+  sportFieldId: string;
+  isDeleted: boolean;
+}
+
+interface CommentData {
+  customerName: string;
+  comment: string;
+  numberOfStar: number;
+  avatar: string | null;
+}
 
 interface DetailData {
   id: string;
-  title: string;
-  owner?: string;
-  contact?: string;
-  rating: number;
-  bookings?: number;
-  reviews: number;
-  location: string;
+  name: string;
+  sport: string;
+  address: string;
   description: string;
+  type: string;
   priceRange: string;
+  stars: number;
+  ratioAccept: number;
+  numberOfBooking: number;
+  images: ImageField[];
+  ratings: CommentData[];
+  vouchers: string[];
+  sportEquipments: string[];
+  numberOfReviews: number;
 }
 
 function Detail({ params }: { params: { slug: string } }) {
   const router = useRouter()
   const id = params.slug;
 
+  const position = [10.84488722399991, 106.63925902499713];
   const [detailData, setDetailData] = useState<DetailData | null>(null);
 
-  useEffect(() => {
-    if (id) {
-      const decodedTitle = decodeURIComponent(id);
-      console.log(decodedTitle);
-      const item = data.find((item: DetailData) => item.title == decodedTitle);
-      console.log(item);
-      setDetailData(item || null);
-    }
-  }, []); // Theo dõi id
+  console.log(detailData)
+  const [isLoading, setIsLoading] = useState(false);
+
+    // Hàm gọi API
+    const fetchFilteredData = async () => {
+      try {
+        const response = await axios.get(
+          `https://sportappdemo.azurewebsites.net/api/SportField/GetSportField`, {
+            params: {
+              EndPoint: decodeURIComponent(id)
+            },
+          }
+        );
+  
+        setDetailData(response.data); 
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      fetchFilteredData()
+    },[])
 
   const handleBooking = async () => {
     router.push(`/filter/${id}/booking`)
@@ -69,14 +107,15 @@ function Detail({ params }: { params: { slug: string } }) {
                   alt="Product image"
                   className="w-full rounded-md h-[300px]"
                   height="200"
-                  src={DetailImage}
+                  width="300"
+                  src={detailData.images[0].pictureUrl}
                 />
                 <div className="grid grid-cols-3 gap-2">
                   <Image
                     alt="Product image"
                     className="w-full rounded-md h-[120px]"
                     height="56"
-                    src={DetailImage}
+                    src={detailData.images[0].pictureUrl}
                     width="84"
                   />
 
@@ -84,7 +123,7 @@ function Detail({ params }: { params: { slug: string } }) {
                     alt="Product image"
                     className="w-full rounded-md h-[120px]"
                     height="56"
-                    src={DetailImage}
+                    src={detailData.images[0].pictureUrl}
                     width="84"
                   />
                   <Button className="flex w-84 h-[120px]  items-center justify-center rounded-md border border-dashed">
@@ -97,32 +136,31 @@ function Detail({ params }: { params: { slug: string } }) {
           </Card>
         </div>
         <div className="w-[55%] space-y-6 pt-4 pl-4">
-          <p className="text-4xl font-semibold">{detailData.title}</p>
+          <p className="text-4xl font-semibold">{detailData.name}</p>
           <p className="text-lg font-medium text-[#7D92A1]">
-            Chủ sân: {detailData.owner || "Chưa có"} - Liên hệ:{" "}
-            {detailData.contact || "Chưa có"}
+            Địa chỉ: {detailData.address}
           </p>
           <div className="flex">
             <Badge className="flex items-center bg-green-500 text-sm text-white rounded-md">
-              {detailData.rating} <FaStar className="size-4 text-white ml-1" />
+              {detailData.stars} <FaStar className="size-4 text-white ml-1" />
             </Badge>
             <p className="text-base font-medium ml-2">
-              200 Đã Đặt Sân | {detailData.reviews}+ Reviews
+              200 Đã Đặt Sân | {detailData.numberOfReviews}+ Reviews
             </p>
           </div>
           <p className="flex text-base space-x-2 font-medium my-2">
             <CiLocationOn className="size-5" />{" "}
-            <span>{detailData.location}</span>
+            <span>{detailData.address}</span>
           </p>
           <p className="flex text-base space-x-2 font-medium my-2">
             <TiNews className="size-5" />
             <span>{detailData.description}</span>
           </p>
           <p className="flex text-base space-x-2 font-medium my-2">
-            <RiSendPlaneFill className="size-5" /> <span> Sân 5 </span>
+            <RiSendPlaneFill className="size-5" /> <span> {detailData.type} </span>
           </p>
           <p className="flex text-base space-x-2 font-medium my-2">
-            <RiSendPlaneFill className="size-5" /> <span> Sân 7 </span>
+            <RiSendPlaneFill className="size-5" /> <span> {detailData.type} </span>
           </p>
           <p className="text-base space-x-2 font-medium my-2">
             <span>
@@ -151,7 +189,7 @@ function Detail({ params }: { params: { slug: string } }) {
       </div>
 
       <div className="flex pl-16 mt-4 gap-4">
-        <div className="w-[77%]">
+        <div className="w-[72%]">
           <Grid container rowSpacing={2}>
             <Grid item xs={12}>
               <p className="text-2xl font-semibold border-b-2 border-[#28A745] inline-block">
@@ -221,11 +259,11 @@ function Detail({ params }: { params: { slug: string } }) {
               </Grid>
             </Grid>
             <Grid item xs = {12}>
-              <CommentSection/>
+              <CommentSection comments = {detailData.ratings}/>
             </Grid>
           </Grid>
         </div>
-        <div className="w-[18%] pl-4 gap-4">
+        <div className="w-[23%] pl-4 gap-4">
           <p className="text-2xl font-semibold border-b-2 border-[#28A745] inline-block">
             Mã giảm giá của sân
           </p>
@@ -265,6 +303,20 @@ function Detail({ params }: { params: { slug: string } }) {
               <Button className="bg-[#DC3545] hover:bg-[#ff6550]">Lưu</Button>
             </div>
           </div>
+          <p className="text-2xl mt-2 py-2 font-semibold border-b-2 border-[#28A745] inline-block">
+            Vị trí sân
+          </p>
+          <MapContainer center={position} zoom={13} style={{ height: "400px", width: "100%" }}>
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            <Marker position={position}>
+              <Popup>
+                Location: 10.8449, 106.6393
+              </Popup>
+            </Marker>
+            </MapContainer>
         </div>
       </div>
     </div>

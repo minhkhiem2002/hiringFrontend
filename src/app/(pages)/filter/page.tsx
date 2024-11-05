@@ -19,17 +19,17 @@ import Navbar from "@/components/user/main-nav";
 import CardDp from "@/components/user/card-dp";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
-import data from "@/ultils/data.json";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import Link from "next/link";
+import axios from "axios";
 
 const categories = [
-  { id: "football", label: "Bóng đá" },
-  { id: "basketball", label: "Bóng rổ" },
-  { id: "volleyball", label: "Bóng chuyền" },
-  { id: "badminton", label: "Cầu lông" },
-  { id: "swimming", label: "Bơi lội" },
-  { id: "indoor", label: "Thể thao trong nhà" },
+  { id: "Bóng đá", label: "Bóng đá" },
+  { id: "Bóng rổ", label: "Bóng rổ" },
+  { id: "Bóng chuyền", label: "Bóng chuyền" },
+  { id: "Cầu lông", label: "Cầu lông" },
+  { id: "Bơi lội", label: "Bơi lội" },
+  { id: "Thể thao trong nhà", label: "Thể thao trong nhà" },
 ];
 
 const locations = [
@@ -52,10 +52,9 @@ const ratings = [
 
 const itemsPerPage = 9;
 
+// Schema validate form
 const FormSchema = z.object({
-  items: z.array(z.string()).refine((value) => value.length > 0, {
-    message: "You have to select at least one item."
-  }),
+  items: z.array(z.string()).optional(),
   locations: z.array(z.string()).optional(),
   ratings: z.array(z.string()).optional(),
   minPrice: z.number().optional(),
@@ -64,7 +63,9 @@ const FormSchema = z.object({
 
 const CheckboxReactHookFormMultiple = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [filteredItems, setFilteredItems] = useState<any[]>(data);
+  const [filteredItems, setFilteredItems] = useState<any[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -77,66 +78,53 @@ const CheckboxReactHookFormMultiple = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    console.log(data);
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+  // Hàm gọi API
+  const fetchFilteredData = async () => {
+    const { items, locations, ratings, minPrice, maxPrice } = form.getValues();
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `https://sportappdemo.azurewebsites.net/api/SportField/GetSportFields`, {
+          params: {
+            PageSize: itemsPerPage,
+            PageNumber: currentPage,
+            Search: null,
+            Sort: "rating",
+            Sports: items ? items.join(",") : null,
+            StarRatings: ratings ? ratings.join(",") : null,
+            MinPrice: minPrice,
+            MaxPrice: maxPrice,
+          },
+        }
+      );
+
+      setFilteredItems(response.data.fields); 
+      setTotalItems(response?.data?.count); 
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Could not fetch data",
+        status: "error",
+      });
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
-    const { items, locations, ratings, minPrice, maxPrice } = form.getValues();
-  
-    const filtered = data.filter(item => {
-      const matchesCategory = items.length === 0 || items.includes(item.type);
-      const matchesLocation = locations?.length === 0 || locations?.includes(item.district);
-      const matchesRating = ratings?.length === 0 || ratings?.some(rating => {
-        const itemRating = item.rating; 
-        switch (rating) {
-          case "5star":
-            return itemRating === 5;
-          case "4star":
-            return itemRating >= 4;
-          case "3star":
-            return itemRating >= 3;
-          case "2star":
-            return itemRating >= 2;
-          case "1star":
-            return itemRating >= 1;
-          default:
-            return true;
-        }
-      });
-      
-      // Assuming priceRange is formatted as "min-max"
-      const priceRange = item.priceRange.split('-').map(price => parseInt(price.replace(/[^0-9]/g, '')));
-      const matchesPrice = (minPrice ? priceRange[0] >= minPrice : true) &&
-                           (maxPrice ? priceRange[1] <= maxPrice : true);
-  
-      return matchesCategory && matchesLocation && matchesRating && matchesPrice;
-    });
-  
-    setFilteredItems(filtered);
+    fetchFilteredData();
   }, [
     form.watch("items"),
     form.watch("locations"),
     form.watch("ratings"),
     form.watch("minPrice"),
     form.watch("maxPrice"),
+    currentPage,
   ]);
-  
 
-  const totalItems = filteredItems.length;
+  // Số trang dựa trên tổng số mục trả về từ API
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const paginatedItems = filteredItems.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
 
   return (
     <div>
@@ -146,7 +134,7 @@ const CheckboxReactHookFormMultiple = () => {
           <Form {...form}>
             <FormLabel className="text-lg text-[#21717A]">Filter By</FormLabel>
             <div className="h-px my-4 bg-gray-300 shadow"></div>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(fetchFilteredData)} className="space-y-8">
               <FormField
                 control={form.control}
                 name="items"
@@ -192,122 +180,58 @@ const CheckboxReactHookFormMultiple = () => {
                   <Input
                     id="minPrice"
                     type="number"
-                    onChange={(e) => form.setValue("minPrice", parseInt(e.target.value))}
-                    defaultValue="0"
-                    className="w-[100px]"
+                    onChange={(e) => form.setValue("minPrice", Number(e.target.value))}
+                    placeholder="Giá thấp nhất"
+                    className="h-8"
                   />
                   <span>-</span>
                   <Input
                     id="maxPrice"
                     type="number"
-                    onChange={(e) => form.setValue("maxPrice", parseInt(e.target.value))}
-                    defaultValue="1000000"
-                    className="w-[100px]"
+                    onChange={(e) => form.setValue("maxPrice", Number(e.target.value))}
+                    placeholder="Giá cao nhất"
+                    className="h-8"
                   />
                 </div>
-                <FormMessage />
               </FormItem>
-              <div className="h-px bg-gray-300 shadow"></div>
-              <FormField
-                control={form.control}
-                name="locations"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="mb-4">
-                      <FormLabel className="text-sm text-[#566976]">Khu vực</FormLabel>
-                    </div>
-                    {locations.map((item) => (
-                      <FormItem
-                        key={item.id}
-                        className="flex flex-row items-start space-x-3 space-y-0"
-                      >
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(item.id)}
-                            onCheckedChange={(checked: boolean) => {
-                              if (checked) {
-                                field.onChange([...field?.value, item.id]);
-                              } else {
-                                field.onChange(field.value?.filter((value) => value !== item.id));
-                              }
-                            }}
-                            className="data-[state=checked]:bg-[#129AA6]"
-                          />
-                        </FormControl>
-                        <FormLabel className="font-normal text-[#7D92A1] text-sm">
-                          {item.label}
-                        </FormLabel>
-                      </FormItem>
-                    ))}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="h-px bg-gray-300 shadow"></div>
-              <FormField
-                control={form.control}
-                name="ratings"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="mb-4">
-                      <FormLabel className="text-sm text-[#566976]">Đánh giá</FormLabel>
-                    </div>
-                    {ratings.map((item) => (
-                      <FormItem
-                        key={item.id}
-                        className="flex flex-row items-start space-x-3 space-y-0"
-                      >
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(item.id)}
-                            onCheckedChange={(checked: boolean) => {
-                              if (checked) {
-                                field.onChange([...field?.value, item.id]);
-                              } else {
-                                field.onChange(field.value?.filter((value) => value !== item.id));
-                              }
-                            }}
-                            className="data-[state=checked]:bg-[#129AA6]"
-                          />
-                        </FormControl>
-                        <FormLabel className="font-normal text-[#7D92A1] text-sm">
-                          {item.label}
-                        </FormLabel>
-                      </FormItem>
-                    ))}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </form>
           </Form>
         </div>
-        <div className="w-4/5 px-7 py-4">
-          <div className="flex flex-wrap justify-center gap-4">
-          <div className="flex flex-wrap justify-center gap-4">
-            {paginatedItems.map((item) => (
-              <Link href={`/filter/${encodeURIComponent(item.title)}`} key={item.id}>
-                <CardDp 
-                  title={item.title} 
-                  location={item.location} 
-                  description={item.description} 
-                  priceRange={item.priceRange} 
-                  rating={item.rating} 
-                  reviews={item.reviews} 
-                />
-              </Link>
-            ))}
-          </div>
+        <div className="w-4/5 p-6">
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : (
+            <div>
+              <div className="grid grid-cols-3 gap-4">
+                {filteredItems && filteredItems.length > 0 ? (
+                  filteredItems.map((item) => (
+                    <Link href={`/filter/${item.endPoint}`} key={item.id}>
+                      <CardDp 
+                          title={item.name} 
+                          location={item.address} 
+                          priceRange={item.minPrice} 
+                          rating={item.stars} 
+                          reviews={item.numberOfReviews} 
+                        />
+                    </Link>
+                  ))
+                ) : (
+                  <p>No items found</p>
+                )}
+              </div>
 
-          </div>
-          <Stack spacing={2} className="mt-4 flex justify-center items-center">
-            <Pagination
-              count={totalPages}
-              page={currentPage}
-              onChange={(event, page) => setCurrentPage(page)}
-              color="primary"
-            />
-          </Stack>
+              <div className="flex justify-center mt-4">
+                <Stack spacing={2}>
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={(event, page) => setCurrentPage(page)}
+                    color="primary"
+                  />
+                </Stack>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -31,9 +31,12 @@ const Navbar = () => {
   const isLogin = useUserStore((state) => state.isLogin);
   const info = useUserStore((state) => state.userInfo);
   const loading = useUserStore((state) => state.loading);
+  const putSuccess = useUserStore((state) => state.putSuccess);
   const setState = useUserStore((state) => state.setState);
   const setInfo = useUserStore((state) => state.setInfo);
   const getInfo = useUserStore((state) => state.getInfo);
+
+  console.log('State',putSuccess)
 
   useEffect(() => {
     const id = sessionStorage.getItem("userId");
@@ -44,6 +47,18 @@ const Navbar = () => {
       setInfo(null);
     }
   }, []);
+
+  useEffect(() => {
+    if (putSuccess) {
+    const id = sessionStorage.getItem("userId");
+      if (id || info) {
+        getInfo(id);
+      } else {
+        setState(false);
+        setInfo(null);
+      } 
+    }
+  }, [putSuccess]);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -70,7 +85,7 @@ const Navbar = () => {
   const open = Boolean(anchorEl);
 
   const thongtinTaikhoan = () => {
-    setOpenDrawer(true);
+    router.push("/user/account", { scroll: false });
   };
   const doimatkhau = () => {
     setOpenDrawerMatKhau(true);
@@ -127,6 +142,8 @@ const Navbar = () => {
         <Grid item xs={3} container alignItems="center" justifyContent="flex-end">
           <Box className="flex items-center gap-2">
             {info ? (
+              <>
+              <p>{info.firstName} {info.lastName}</p>
               <Tooltip title="Tài khoản của tôi">
                 <IconButton size="small" onClick={handleClick}>
                   <Avatar
@@ -138,6 +155,7 @@ const Navbar = () => {
                   </Avatar>
                 </IconButton>
               </Tooltip>
+              </>
             ) : isLogin ? (
               <Skeleton variant="circular" width={40} height={40} />
             ) : (

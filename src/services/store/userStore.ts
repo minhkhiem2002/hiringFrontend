@@ -1,51 +1,35 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { UserInfo, UserPasswordUpdate } from '../interfaces/authInterface';
+import { persist, PersistOptions } from 'zustand/middleware';
+import { UserInfo, UserPasswordUpdate, UserInfoUpdate } from '../interfaces/authInterface';
 import { getInfoApi, updateInfoApi, updatePasswordApi, updateAvatarApi } from '../api/authApi';
 
-type getInfoState = {
+type UserStoreState = {
   userInfo: UserInfo | null;
   loading: boolean;
-};
-
-type getInfoAction = {
-  getInfo: (userId: string | null) => Promise<UserInfo | null>;
-};
-
-type setInfoAction = {
-  setInfo: (userData: UserInfo | null) => void;
-};
-
-type UpdateInfoAction = {
-  updateInfo: (userData: UserInfo | null) => Promise<void>;
-};
-
-type UpdateAvatarAction = {
-  updateAvatar: (avatarData: FormData) => Promise<void>;
-};
-
-type updatePasswordAction = {
-  updatePassword: (userData: UserPasswordUpdate) => Promise<void>;
-};
-
-type setStateLogin = {
   isLogin: boolean;
-};
-
-type setActionLogin = {
+  putSuccess: boolean;
+  getInfo: (userId: string | null) => Promise<UserInfo | null>;
+  setInfo: (userData: UserInfo | null) => void;
+  updateInfo: (userData: UserInfoUpdate) => Promise<void>;
+  updateAvatar: (avatarData: FormData) => Promise<void>;
+  updatePassword: (userData: UserPasswordUpdate) => Promise<void>;
   setState: (newState: boolean) => void;
 };
 
-export const useUserStore = create<
-  getInfoState & getInfoAction & setInfoAction & setStateLogin & setActionLogin & UpdateInfoAction & UpdateAvatarAction & updatePasswordAction
->(
-  persist(
+type PersistedState = (
+  config: (set: any, get: any, api: any) => UserStoreState,
+  options: PersistOptions<UserStoreState>
+) => (set: any, get: any, api: any) => UserStoreState;
+
+export const useUserStore = create<UserStoreState>(
+  (persist as PersistedState)(
     (set) => ({
       userInfo: null,
       isLogin: false,
-      loading: false, 
+      loading: false,
+      putSuccess: false,
 
-      getInfo: async (userId: string) => {
+      getInfo: async (userId: string | null) => {
         set({ loading: true });
         try {
           const userInfo = await getInfoApi(userId);
@@ -61,38 +45,38 @@ export const useUserStore = create<
         return null;
       },
 
-      setInfo: (userData: UserInfo) => {
+      setInfo: (userData: UserInfo | null) => {
         set({ userInfo: userData });
       },
 
       updateInfo: async (userData: UserInfoUpdate) => {
-        set({ loading: true });
+        set({ loading: true, putSuccess: false });
         try {
           const updatedUserInfo = await updateInfoApi(userData);
           if (updatedUserInfo) {
-            set({ userInfo: updatedUserInfo, isLogin: true });
-            return true
+            set({ userInfo: updatedUserInfo, isLogin: true, putSuccess: true });
           }
         } catch (error) {
           console.error('Failed to update user data', error);
-          return false
+          set({ putSuccess: false });
         } finally {
           set({ loading: false });
         }
       },
 
       updateAvatar: async (avatarData: FormData) => {
-        set({ loading: true });
+        set({ loading: true, putSuccess: false });
         try {
           const updatedAvatar = await updateAvatarApi(avatarData);
           if (updatedAvatar) {
-            set((state) => ({
+            set((state: any) => ({
               userInfo: { ...state.userInfo, avatar: updatedAvatar } as UserInfo,
+              putSuccess: true
             }));
           }
-          return updatedAvatar.data;
         } catch (error) {
           console.error('Failed to update avatar', error);
+          set({ putSuccess: false });
         } finally {
           set({ loading: false });
         }

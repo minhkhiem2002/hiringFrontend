@@ -1,45 +1,44 @@
 import React, { useState } from 'react';
-import { Pagination, Button } from '@mui/material'; 
-import Image from 'next/image'; 
+import { Pagination, Button } from '@mui/material';
+import Image from 'next/image';
+import { useUserStore } from '@/services/store/userStore';
 
-const initialComments = [
-  {
-    id: 1,
-    userName: 'Nguyễn Văn A',
-    userAvatar: 'https://res.cloudinary.com/dfjlzjnog/image/upload/v1729387360/vzlorzzypfckcbdeh3b7.jpg',
-    content: 'Bình luận đầu tiên!',
-    date: '2024-10-25',
-  },
-  {
-    id: 2,
-    userName: 'Trần Thị B',
-    userAvatar: 'https://res.cloudinary.com/dfjlzjnog/image/upload/v1729387360/vzlorzzypfckcbdeh3b7.jpg',
-    content: 'Rất hay, cảm ơn bạn!',
-    date: '2024-10-26',
-  },
-];
+interface CommentData {
+  customerName: string;
+  comment: string;
+  numberOfStar: number;
+  avatar: string | undefined;
+}
+
+interface CommentSectionProps {
+  comments: CommentData[];
+}
 
 const commentsPerPage = 5;
 
-const CommentSection = () => {
-  const [comments, setComments] = useState(initialComments);
+const CommentSection: React.FC<CommentSectionProps> = ({ comments: initialComments }) => {
+  console.log(initialComments)
+  const [comments, setComments] = useState<CommentData[]>(initialComments);
   const [newComment, setNewComment] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [newRating, setNewRating] = useState(0);
+
+  const info = useUserStore((state) => state.userInfo);
 
   const totalComments = comments.length;
 
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      const newCommentData = {
-        id: totalComments + 1,
-        userName: 'Người dùng', 
-        userAvatar: 'https://res.cloudinary.com/dfjlzjnog/image/upload/v1729387360/vzlorzzypfckcbdeh3b7.jpg',
-        content: newComment,
-        date: new Date().toISOString().split('T')[0],
+  const handleAddComment = async () => {
+    if (newComment.trim() && newRating > 0) {
+      const newCommentData: CommentData = {
+        customerName: info?.firstName + ' ' + info?.lastName,
+        avatar: info?.avatar,
+        comment: newComment,
+        numberOfStar: newRating,
       };
 
       setComments((prevComments) => [...prevComments, newCommentData]);
       setNewComment('');
+      setNewRating(0);
     }
   };
 
@@ -52,23 +51,27 @@ const CommentSection = () => {
     return comments.slice(startIndex, startIndex + commentsPerPage);
   };
 
+  const renderStars = (rating: number) => {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  };
+
   return (
     <div>
-      {getCurrentComments().map((comment) => (
-        <div key={comment.id} className="flex items-start bg-gray-100 rounded-md p-4 shadow-sm">
+      {getCurrentComments().map((comment, index) => (
+        <div key={index} className="flex items-start bg-gray-100 rounded-md p-4 shadow-sm mb-2">
           <Image
             alt="User avatar"
-            src={comment.userAvatar}
+            src={comment.avatar || 'https://res.cloudinary.com/dfjlzjnog/image/upload/v1730214090/ws2w9lkdyiuptaah4gbf.png'}
             className="w-10 h-10 rounded-full mr-3"
             width={40}
             height={40}
           />
           <div className="flex flex-col w-full">
             <div className="flex justify-between">
-              <p className="font-semibold">{comment.userName}</p>
-              <p className="text-gray-500 text-sm">{comment.date}</p>
+              <p className="font-semibold">{comment.customerName}</p>
+              <p className="text-yellow-500 text-sm">{renderStars(comment.numberOfStar)}</p>
             </div>
-            <p className="text-gray-700">{comment.content}</p>
+            <p className="text-gray-700">{comment.comment}</p>
           </div>
         </div>
       ))}
@@ -83,6 +86,18 @@ const CommentSection = () => {
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
         />
+        <div className="flex items-center mt-2">
+          <label className="mr-2">Đánh giá:</label>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <span
+              key={star}
+              className={`cursor-pointer text-2xl ${star <= newRating ? 'text-yellow-500' : 'text-gray-300'}`}
+              onClick={() => setNewRating(star)}
+            >
+              ★
+            </span>
+          ))}
+        </div>
         <Button
           className="mt-2 bg-[#31AAB7] text-white"
           onClick={handleAddComment}
