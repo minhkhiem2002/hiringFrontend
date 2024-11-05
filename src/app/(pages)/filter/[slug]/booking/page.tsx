@@ -71,11 +71,11 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
 
     // Thiết lập kết nối SignalR
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl("/bookingHub")
+      .withUrl(`/getschedulerhub`)
       .build();
 
     connection.on(
-      "UpdateTimeSlot",
+      "GetScheduler",
       (sportFieldId: number, timeSlotId: string) => {
         // Cập nhật trạng thái khung giờ khi nhận tín hiệu từ SignalR
         setTimeSlots((prevSlots) =>
@@ -98,7 +98,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
     return () => {
       connection.stop();
     };
-  }, [selectedDate]);
+  }, []);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const date = e.target.value;
