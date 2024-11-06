@@ -23,12 +23,13 @@ import {
   Skeleton,
   Tooltip,
 } from "@mui/material";
+import { useAuthStore } from "@/services/store/authStore";
 
 const Navbar = () => {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const isLogin = useUserStore((state) => state.isLogin);
+  const isLogin = useAuthStore((state) => state.isLogin);
   const info = useUserStore((state) => state.userInfo);
   const loading = useUserStore((state) => state.loading);
   const putSuccess = useUserStore((state) => state.putSuccess);
@@ -36,29 +37,27 @@ const Navbar = () => {
   const setInfo = useUserStore((state) => state.setInfo);
   const getInfo = useUserStore((state) => state.getInfo);
 
-  console.log('State',putSuccess)
-
   useEffect(() => {
     const id = sessionStorage.getItem("userId");
-    if (id || info) {
+    if (id) {
       getInfo(id);
     } else {
       setState(false);
       setInfo(null);
     }
-  }, []);
+  }, [getInfo, setState, setInfo]);
 
   useEffect(() => {
     if (putSuccess) {
-    const id = sessionStorage.getItem("userId");
-      if (id || info) {
+      const id = sessionStorage.getItem("userId");
+      if (id) {
         getInfo(id);
       } else {
         setState(false);
         setInfo(null);
-      } 
+      }
     }
-  }, [putSuccess]);
+  }, [putSuccess, getInfo, setState, setInfo]);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -104,7 +103,6 @@ const Navbar = () => {
 
   return (
     <Box className="w-full bg-slate-100">
-      {loading && <Loading />}
       <Grid
         container
         alignItems="center"
@@ -126,11 +124,11 @@ const Navbar = () => {
 
         {/* Navigation Links */}
         <Grid item xs={7.5} container spacing={2} justifyContent="start" alignItems="center" className = 'mt-1'>
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="rounded-lg bg-background pl-8 ml-4 w-[400px]"
-            />
+          <Input
+            type="search"
+            placeholder="Search..."
+            className="rounded-lg bg-background pl-8 ml-4 w-[400px]"
+          />
           <Link href="/filter" className="mx-3">Thông tin sân</Link>
           <Link href="/docs" className="mx-3">Sự kiện</Link>
           <Link href="/docs" className="mx-3">Tin tức</Link>
@@ -140,24 +138,23 @@ const Navbar = () => {
 
         {/* User Info and Buttons */}
         <Grid item xs={3} container alignItems="center" justifyContent="flex-end">
+          {loading ? <Loading /> : (
           <Box className="flex items-center gap-2">
-            {info ? (
+            {isLogin && info ? (
               <>
-              <p>{info.firstName} {info.lastName}</p>
-              <Tooltip title="Tài khoản của tôi">
-                <IconButton size="small" onClick={handleClick}>
-                  <Avatar
-                    className="w-10 h-10"
-                    alt="User Avatar"
-                    src={info.avatar || undefined}
-                  >
-                    {!info.avatar && `${info.firstName} ${info.lastName}`}
-                  </Avatar>
-                </IconButton>
-              </Tooltip>
+                <p>{info.firstName} {info.lastName}</p>
+                <Tooltip title="Tài khoản của tôi">
+                  <IconButton size="small" onClick={handleClick}>
+                    <Avatar
+                      className="w-10 h-10"
+                      alt="User Avatar"
+                      src={info.avatar || undefined}
+                    >
+                      {!info.avatar && `${info.firstName} ${info.lastName}`}
+                    </Avatar>
+                  </IconButton>
+                </Tooltip>
               </>
-            ) : isLogin ? (
-              <Skeleton variant="circular" width={40} height={40} />
             ) : (
               <>
                 <Button onClick={handleRegister} className="bg-red-500 hover:bg-red-300">
@@ -169,8 +166,11 @@ const Navbar = () => {
               </>
             )}
           </Box>
+           )}
         </Grid>
       </Grid>
+
+      {/* Menu */}
       <Menu
         anchorEl={anchorEl}
         id="account-menu"

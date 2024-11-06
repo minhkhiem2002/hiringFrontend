@@ -5,6 +5,7 @@ import { loginApi, registerApi } from '../api/authApi';
 
 type State = {
   user: User | null;
+  isLogin: boolean;
 };
 
 type Action = {
@@ -13,16 +14,18 @@ type Action = {
 
 type SUpState = {
   signUpUser: SignUpUser | null;
+  isLogin: boolean;
 };
 
 type SUpAction = {
-  register: (email: string, password: string, confirmPassword: string, firstName: string, lastName: string) => Promise<void>;
+  register: (firstName: string, lastName: string, email: string, password: string, confirmPassword: string) => Promise<void>;
 };
 
 export const useAuthStore = create<State & Action>(
   persist(
     (set) => ({
       user: null,
+      isLogin: false,
 
       login: async (email: string, password: string) => {
         try {
@@ -35,12 +38,14 @@ export const useAuthStore = create<State & Action>(
 
             set({
               user: { id, userRoleId, email, token, role },
+              isLogin: true,
             });
 
             return response;
           }
         } catch (error) {
           console.error('Login failed', error);
+          set({ isLogin: false });
           return null;
         }
       },
@@ -56,16 +61,20 @@ export const useSignUpStore = create<SUpState & SUpAction>(
   persist(
     (set) => ({
       signUpUser: null,
+      isLogin: false,  // Always keep isLogin false for registration store
 
       register: async (firstName: string, lastName: string, email: string, password: string, confirmPassword: string) => {
         try {
           const response = await registerApi(firstName, lastName, email, password, confirmPassword);
-          if (response == true)
-          {return response}
-          else return null
+          if (response) {
+            set({ signUpUser: response });  // Only set signUpUser
+            return response;
+          } else {
+            return null;
+          }
         } catch (error) {
           console.error('Register failed', error);
-          return null
+          return null;
         }
       },
     }),

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Pagination, Button } from '@mui/material';
 import Image from 'next/image';
 import { useUserStore } from '@/services/store/userStore';
+import { useRatingStore } from '@/services/store/fieldStore';
 
 interface CommentData {
   customerName: string;
@@ -11,13 +12,14 @@ interface CommentData {
 }
 
 interface CommentSectionProps {
+  id: string;
   comments: CommentData[];
 }
 
 const commentsPerPage = 5;
 
-const CommentSection: React.FC<CommentSectionProps> = ({ comments: initialComments }) => {
-  console.log(initialComments)
+const CommentSection: React.FC<CommentSectionProps> = ({ id, comments: initialComments }) => {
+  console.log(id)
   const [comments, setComments] = useState<CommentData[]>(initialComments);
   const [newComment, setNewComment] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,19 +27,20 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments: initialCommen
 
   const info = useUserStore((state) => state.userInfo);
 
+  const fetchRating = useRatingStore(state=> state.fetchRating)
+
   const totalComments = comments.length;
 
   const handleAddComment = async () => {
     if (newComment.trim() && newRating > 0) {
       const newCommentData: CommentData = {
-        customerName: info?.firstName + ' ' + info?.lastName,
-        avatar: info?.avatar,
+        customerId: sessionStorage.getItem('userId'),
+        sportFieldId: id,
         comment: newComment,
         numberOfStar: newRating,
       };
 
-      setComments((prevComments) => [...prevComments, newCommentData]);
-      setNewComment('');
+      await fetchRating(newCommentData)
       setNewRating(0);
     }
   };

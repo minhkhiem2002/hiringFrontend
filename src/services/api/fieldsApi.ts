@@ -34,7 +34,7 @@ export const fetchFields = async (params: FetchFieldsParams = {}) => {
 
 export const postRatingApi = async (rating: Rating | null) => {
   try {
-    const response = await axios.post(`BASE_URL` + 'AddRating', rating)
+    const response = await axios.post('https://sportappdemo.azurewebsites.net/api/SportField/AddRating', rating)
     return response.data;
   } catch (error) {
     console.error("Error fetching fields:", error);

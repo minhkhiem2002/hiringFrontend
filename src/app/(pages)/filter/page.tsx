@@ -22,6 +22,7 @@ import Stack from "@mui/material/Stack";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import Link from "next/link";
 import axios from "axios";
+import { useFieldsStore } from "@/services/store/fieldStore";
 
 const categories = [
   { id: "Bóng đá", label: "Bóng đá" },
@@ -66,6 +67,8 @@ const CheckboxReactHookFormMultiple = () => {
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+
+  const fetchFieldsData = useFieldsStore(state => state.fetchFieldsData)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -209,7 +212,7 @@ const CheckboxReactHookFormMultiple = () => {
                       <CardDp 
                           title={item.name} 
                           location={item.address} 
-                          priceRange={item.minPrice} 
+                          priceRange={item.priceRange} 
                           rating={item.stars} 
                           reviews={item.numberOfReviews} 
                         />

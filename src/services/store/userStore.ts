@@ -6,7 +6,6 @@ import { getInfoApi, updateInfoApi, updatePasswordApi, updateAvatarApi } from '.
 type UserStoreState = {
   userInfo: UserInfo | null;
   loading: boolean;
-  isLogin: boolean;
   putSuccess: boolean;
   getInfo: (userId: string | null) => Promise<UserInfo | null>;
   setInfo: (userData: UserInfo | null) => void;
@@ -25,7 +24,6 @@ export const useUserStore = create<UserStoreState>(
   (persist as PersistedState)(
     (set) => ({
       userInfo: null,
-      isLogin: false,
       loading: false,
       putSuccess: false,
 
@@ -34,11 +32,12 @@ export const useUserStore = create<UserStoreState>(
         try {
           const userInfo = await getInfoApi(userId);
           if (userInfo) {
-            set({ userInfo, isLogin: true });
+            set({ userInfo });
             return userInfo;
           }
         } catch (error) {
           console.error('Failed to fetch user data', error);
+          set({ userInfo: null });
         } finally {
           set({ loading: false });
         }
@@ -54,7 +53,7 @@ export const useUserStore = create<UserStoreState>(
         try {
           const updatedUserInfo = await updateInfoApi(userData);
           if (updatedUserInfo) {
-            set({ userInfo: updatedUserInfo, isLogin: true, putSuccess: true });
+            set({ userInfo: updatedUserInfo, putSuccess: true });
           }
         } catch (error) {
           console.error('Failed to update user data', error);
@@ -87,7 +86,7 @@ export const useUserStore = create<UserStoreState>(
         try {
           const updatedPassword = await updatePasswordApi(userData);
           if (updatedPassword) {
-            set({ isLogin: true });
+            console.log('Password updated successfully');
           }
         } catch (error) {
           console.error('Failed to update user password', error);
@@ -97,7 +96,7 @@ export const useUserStore = create<UserStoreState>(
       },
 
       setState: (newState: boolean) => {
-        set({ isLogin: newState });
+        // You can repurpose this method as needed since isLogin is removed.
       },
     }),
     {

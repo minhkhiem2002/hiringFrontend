@@ -259,7 +259,7 @@ function Detail({ params }: { params: { slug: string } }) {
               </Grid>
             </Grid>
             <Grid item xs = {12}>
-              <CommentSection comments = {detailData.ratings}/>
+              <CommentSection id={detailData.id} comments = {detailData.ratings}/>
             </Grid>
           </Grid>
         </div>
