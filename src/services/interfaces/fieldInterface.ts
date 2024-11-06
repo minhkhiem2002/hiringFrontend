@@ -11,6 +11,8 @@ export interface Field {
 export interface Rating {
   sportFieldId: string;
   customerId: string;
+  customerName?: string;
   numberOfStar: 0;
   comment: string;
+  avatar?: string | undefined;
 }

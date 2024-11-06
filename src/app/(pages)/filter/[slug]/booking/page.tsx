@@ -71,7 +71,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
 
     // Thiết lập kết nối SignalR
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(`http://localhost:3000/filter/${decodeURIComponent(id)}/booking`)
+      .withUrl('https://sportappdemo.azurewebsites.net/getschedulerhub')
       .withAutomaticReconnect()
       .build();
 
@@ -101,6 +101,42 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
       connection.stop();
     };
   }, []);
+
+  useEffect(() => {
+    fetchTimeSlots();
+
+    // Thiết lập kết nối SignalR
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl('https://sportappdemo.azurewebsites.net/getschedulerhub')
+      .withAutomaticReconnect()
+      .build();
+
+    connection.on(
+      "GetScheduler",
+      (sportFieldId: number, timeSlotId: string) => {
+        // Cập nhật trạng thái khung giờ khi nhận tín hiệu từ SignalR
+        console.log('Time',timeSlotId)
+        setTimeSlots((prevSlots) =>
+          prevSlots.map((slot) =>
+            slot.id === timeSlotId ? { ...slot, status: true } : slot
+          )
+        );
+      }
+    );
+
+    connection
+      .start()
+      .then(() => {
+        console.log("Kết nối thành công tới SignalR BookingHub");
+      })
+      .catch((err) => {
+        console.error('Connection error',err.toString());
+      });
+
+    return () => {
+      connection.stop();
+    };
+  }, [selectedDate]);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const date = e.target.value;

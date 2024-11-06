@@ -5,10 +5,12 @@ import { useUserStore } from '@/services/store/userStore';
 import { useRatingStore } from '@/services/store/fieldStore';
 
 interface CommentData {
-  customerName: string;
+  customerId: string | null;
+  customerName?: string;
+  sportFieldId: string;
   comment: string;
   numberOfStar: number;
-  avatar: string | undefined;
+  avatar?: string | undefined;
 }
 
 interface CommentSectionProps {
@@ -34,13 +36,15 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id, comments: initialCo
   const handleAddComment = async () => {
     if (newComment.trim() && newRating > 0) {
       const newCommentData: CommentData = {
-        customerId: sessionStorage.getItem('userId'),
+        customerId: sessionStorage.getItem('roleId'),
         sportFieldId: id,
         comment: newComment,
         numberOfStar: newRating,
       };
 
       await fetchRating(newCommentData)
+      setComments((prevComments) => [...prevComments, newCommentData]);
+      setNewComment('')
       setNewRating(0);
     }
   };
@@ -64,7 +68,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id, comments: initialCo
         <div key={index} className="flex items-start bg-gray-100 rounded-md p-4 shadow-sm mb-2">
           <Image
             alt="User avatar"
-            src={comment.avatar || 'https://res.cloudinary.com/dfjlzjnog/image/upload/v1730214090/ws2w9lkdyiuptaah4gbf.png'}
+            src={comment.avatar || info?.avatar}
             className="w-10 h-10 rounded-full mr-3"
             width={40}
             height={40}

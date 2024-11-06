@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation'
 import CommentSection from './comment'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useRatingStore } from "@/services/store/fieldStore";
 
 interface ImageField {
   id: string;
@@ -61,6 +62,8 @@ function Detail({ params }: { params: { slug: string } }) {
   const position = [10.84488722399991, 106.63925902499713];
   const [detailData, setDetailData] = useState<DetailData | null>(null);
 
+  const isSuccess = useRatingStore(state => state.isSuccess)
+
   console.log(detailData)
   const [isLoading, setIsLoading] = useState(false);
 
@@ -86,6 +89,12 @@ function Detail({ params }: { params: { slug: string } }) {
     useEffect(() => {
       fetchFilteredData()
     },[])
+
+    useEffect(() => {
+      if (isSuccess) {
+        fetchFilteredData()
+      }
+    },[isSuccess])
 
   const handleBooking = async () => {
     router.push(`/filter/${id}/booking`)
