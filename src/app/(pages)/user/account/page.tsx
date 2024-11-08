@@ -70,13 +70,7 @@ const Information = () => {
     defaultValues: { password: "", confirmPassword: "" }
   });
 
-  const getInfo = useUserStore((state) => state.getInfo);
-
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const id = sessionStorage.getItem('userId');
-        const userInfo = await getInfo(id);
         if (userInfo) {
           formInfo.setValue("firstName", userInfo.firstName || "");
           formInfo.setValue("lastName", userInfo.lastName || "");
@@ -88,16 +82,11 @@ const Information = () => {
           formInfo.setValue("role", userInfo.role || "");
           setImagePreview(userInfo.avatar || "");
         }
-      } catch (error) {
-        console.error("Error fetching user information:", error);
-      }
-    };
-
-    fetchData();
-  }, [getInfo]);
+  }, []);
 
   const updateInfo = useUserStore((state) => state.updateInfo);
   const updateAvatar = useUserStore((state) => state.updateAvatar);
+  const userInfo = useUserStore((state) => state.userInfo)
 
   async function onSubmit(values: z.infer<typeof formUserInfoSchema>) {
     try {

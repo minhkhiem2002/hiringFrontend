@@ -23,6 +23,7 @@ import { FaStar, FaRegStar } from "react-icons/fa";
 import Link from "next/link";
 import axios from "axios";
 import { useFieldsStore } from "@/services/store/fieldStore";
+import { Box, Grid, Skeleton } from "@mui/material";
 
 const categories = [
   { id: "Bóng đá", label: "Bóng đá" },
@@ -128,6 +129,7 @@ const CheckboxReactHookFormMultiple = () => {
 
   // Số trang dựa trên tổng số mục trả về từ API
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const skeletonItems = Array.from({ length: 9 });
 
   return (
     <div>
@@ -202,7 +204,24 @@ const CheckboxReactHookFormMultiple = () => {
         </div>
         <div className="w-4/5 p-6">
           {isLoading ? (
-            <p>Loading...</p>
+            <>
+  <Box className="flex gap-12">
+    <Skeleton variant="rectangular" width={350} height={370} />
+    <Skeleton variant="rectangular" width={350} height={370} />
+    <Skeleton variant="rectangular" width={350} height={370} />
+  </Box>
+  <Box className="flex gap-12 mt-4">
+    <Skeleton variant="rectangular" width={350} height={370} />
+    <Skeleton variant="rectangular" width={350} height={370} />
+    <Skeleton variant="rectangular" width={350} height={370} />
+  </Box>
+  <Box className="flex gap-12 mt-4">
+    <Skeleton variant="rectangular" width={350} height={370} />
+    <Skeleton variant="rectangular" width={350} height={370} />
+    <Skeleton variant="rectangular" width={350} height={370} />
+  </Box>
+</>
+
           ) : (
             <div>
               <div className="grid grid-cols-3 gap-4">

@@ -140,17 +140,17 @@ const Navbar = () => {
         <Grid item xs={3} container alignItems="center" justifyContent="flex-end">
           {loading ? <Loading /> : (
           <Box className="flex items-center gap-2">
-            {isLogin && info ? (
+            {sessionStorage.getItem('userId') ? (
               <>
-                <p>{info.firstName} {info.lastName}</p>
+                <p>{info?.firstName} {info?.lastName}</p>
                 <Tooltip title="Tài khoản của tôi">
                   <IconButton size="small" onClick={handleClick}>
                     <Avatar
                       className="w-10 h-10"
                       alt="User Avatar"
-                      src={info.avatar || undefined}
+                      src={info?.avatar || undefined}
                     >
-                      {!info.avatar && `${info.firstName} ${info.lastName}`}
+                      {!info?.avatar && `${info?.firstName} ${info?.lastName}`}
                     </Avatar>
                   </IconButton>
                 </Tooltip>

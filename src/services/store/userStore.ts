@@ -53,8 +53,15 @@ export const useUserStore = create<UserStoreState>(
         try {
           const updatedUserInfo = await updateInfoApi(userData);
           if (updatedUserInfo) {
-            set({ userInfo: updatedUserInfo, putSuccess: true });
+            const userId = sessionStorage.getItem('userId');
+            const userInfo = await getInfoApi(userId);
+          if (userInfo) {
+            set({ userInfo });
+            
           }
+            set({ putSuccess: true });
+          }
+          return updatedUserInfo;
         } catch (error) {
           console.error('Failed to update user data', error);
           set({ putSuccess: false });
