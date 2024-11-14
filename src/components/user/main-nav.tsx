@@ -7,11 +7,13 @@ import { Input } from "@/components/ui/input";
 import UserIcon from '../../../public/icons/User.svg'
 import LogoutIcon from '../../../public/icons/Logout Rounded.svg'
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useUserStore } from "@/services/store/userStore";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/user/loading";
 import {
   Avatar,
+  Badge,
   Box,
   Button,
   Chip,
@@ -20,10 +22,25 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Popper,
   Skeleton,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { useAuthStore } from "@/services/store/authStore";
+import { useNotificationsStore } from "@/services/store/notificationStore";
+import { NotificationParams } from "@/services/api/notificationApi";
+
+function formatDate(dateString:any) {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+
+  return `${hours}:${minutes} ${day}/${month}/${year}`;
+}
 
 const Navbar = () => {
   const router = useRouter();
@@ -36,28 +53,20 @@ const Navbar = () => {
   const setState = useUserStore((state) => state.setState);
   const setInfo = useUserStore((state) => state.setInfo);
   const getInfo = useUserStore((state) => state.getInfo);
+  const notificationCount = useNotificationsStore((state) => state.notificationCount);
+  const fetchNotificationCount = useNotificationsStore(state => state.fetchNotificationCount);
+  const  fetchNotifications = useNotificationsStore(state => state.fetchNotifications);
+  const notifications = useNotificationsStore((state) => state.notifications);
 
-  useEffect(() => {
-    const id = sessionStorage.getItem("userId");
-    if (id) {
-      getInfo(id);
-    } else {
-      setState(false);
-      setInfo(null);
-    }
-  }, [getInfo, setState, setInfo]);
-
-  useEffect(() => {
-    if (putSuccess) {
-      const id = sessionStorage.getItem("userId");
-      if (id) {
-        getInfo(id);
-      } else {
-        setState(false);
-        setInfo(null);
-      }
-    }
-  }, [putSuccess, getInfo, setState, setInfo]);
+  // useEffect(() => {
+  //   if (putSuccess) {
+  //     const id = sessionStorage.getItem("userId");
+  //     if (id) {
+  //       getInfo(id);
+  //       fetchNotificationCount(id);
+  //     } 
+  //   }
+  // }, [putSuccess]);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -80,6 +89,20 @@ const Navbar = () => {
 
   const [openDrawer, setOpenDrawer] = useState(false);
   const [openDrawerMatKhau, setOpenDrawerMatKhau] = useState(false);
+  const [anchorElNoti, setAnchorElNoti] = useState<null | HTMLElement>(null);
+  const openNoti = Boolean(anchorElNoti);
+  const handleClickNoti = async (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(null)
+    const params: NotificationParams = {
+      UserId: sessionStorage.getItem("userId"),
+      PageNumber: 1,
+      PageSize: 5
+    }
+    setAnchorElNoti(anchorElNoti ? null : event.currentTarget);
+    await fetchNotifications(params)
+    await fetchNotificationCount(sessionStorage.getItem("userId"));
+  };
+  const idNoti = openNoti ? 'simple-popper' : undefined;
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -98,8 +121,11 @@ const Navbar = () => {
   };
 
   const handleClick = (event: any) => {
+    setAnchorElNoti(null)
     setAnchorEl(event.currentTarget);
   };
+
+  console.log('Notify Nav', notifications)
 
   return (
     <Box className="w-full bg-slate-100">
@@ -141,7 +167,49 @@ const Navbar = () => {
           {loading ? <Loading /> : (
           <Box className="flex items-center gap-2">
             {sessionStorage.getItem('userId') ? (
-              <>
+              <div className="flex justify-center items-center gap-4">
+                <button aria-describedby={idNoti} type="button" onClick={handleClickNoti}>
+                  <Badge color="secondary" badgeContent={notificationCount} showZero>
+                      <NotificationsIcon />
+                    </Badge>
+                </button>
+                <Popper id={idNoti} open={openNoti} anchorEl={anchorElNoti} sx={{ zIndex: 31 }}  placement="bottom-end">
+                <Box sx={{ border: '1px solid', borderColor: 'grey.300', p: 1, bgcolor: 'background.paper', borderRadius: 1, width: 300 }}>
+                {notifications.length > 0 ? notifications.map((notification, index) => (
+                  <>
+                  <Box key={index} sx={{ p: 1 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                      {notification.title}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      {notification.content}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', display: 'flex', justifyContent: 'flex-end' }}>
+                      {formatDate(notification.creatAt)}
+                    </Typography>
+
+                  </Box>
+                  <Divider />
+                  </>
+                )) : (
+                  <>
+                  <Box sx={{ p: 1 }}>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      Bạn chưa có thông báo nào.
+                    </Typography>
+                  </Box>
+                  <Divider />
+                  </>
+                )}
+                  <Box sx={{ p: 1, display: 'flex', justifyContent: 'center', cursor: 'pointer' }} onClick={handleClickNoti}>
+                    <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                      Xem tất cả
+                    </Typography>
+                  </Box>
+                </Box>
+                </Popper>
+
+
                 <p>{info?.firstName} {info?.lastName}</p>
                 <Tooltip title="Tài khoản của tôi">
                   <IconButton size="small" onClick={handleClick}>
@@ -154,7 +222,7 @@ const Navbar = () => {
                     </Avatar>
                   </IconButton>
                 </Tooltip>
-              </>
+              </div>
             ) : (
               <>
                 <Button onClick={handleRegister} className="bg-red-500 hover:bg-red-300">

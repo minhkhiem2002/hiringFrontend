@@ -22,6 +22,7 @@ import { LoginBodyType } from "@/schemaValidations/auth.schema"
 import Link from 'next/link'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { useNotificationsStore } from "@/services/store/notificationStore";
 
 const Login = () => {
   const router = useRouter()
@@ -39,6 +40,7 @@ const Login = () => {
 
   const login = useAuthStore(state => state.login)
   const getInfo = useUserStore((state) => state.getInfo);
+  const fetchNotificationCount = useNotificationsStore(state => state.fetchNotificationCount);
 
   const onSubmit = async (values: LoginBodyType) => {
     try {
@@ -50,6 +52,7 @@ const Login = () => {
           sessionStorage.setItem('userId', response.id);
   
           await getInfo(response.id);
+          await fetchNotificationCount(response.userRoleId)
           setTimeout(async () => {
             router.push('/');
           }, 2000);

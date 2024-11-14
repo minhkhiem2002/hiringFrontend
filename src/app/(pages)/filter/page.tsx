@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -79,8 +79,30 @@ const CheckboxReactHookFormMultiple = () => {
       ratings: [],
       minPrice: 0,
       maxPrice: 1000000,
+
     },
   });
+
+  const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        (error) => {
+          setError(error.message);
+        }
+      );
+    } else {
+      setError("Trình duyệt không hỗ trợ Geolocation.");
+    }
+  }, []);
 
   // Hàm gọi API
   const fetchFilteredData = async () => {
@@ -98,6 +120,8 @@ const CheckboxReactHookFormMultiple = () => {
             StarRatings: ratings ? ratings.join(",") : null,
             MinPrice: minPrice,
             MaxPrice: maxPrice,
+            UserLat: location? location.latitude : 0,
+            UserLong: location ? location.longitude : 0,
           },
         }
       );
@@ -126,6 +150,12 @@ const CheckboxReactHookFormMultiple = () => {
     form.watch("maxPrice"),
     currentPage,
   ]);
+
+  useEffect(() => {
+    if (location) {
+      fetchFilteredData();
+    }
+  },[location])
 
   // Số trang dựa trên tổng số mục trả về từ API
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -234,6 +264,7 @@ const CheckboxReactHookFormMultiple = () => {
                           priceRange={item.priceRange} 
                           rating={item.stars} 
                           reviews={item.numberOfReviews} 
+                          images={item.pictureUrl}
                         />
                     </Link>
                   ))

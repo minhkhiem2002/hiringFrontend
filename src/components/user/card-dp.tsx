@@ -13,14 +13,15 @@ interface CardDpProps {
   priceRange: string;
   rating: number;
   reviews: number;
+  images: string;
 }
 
-const CardDp = ({ title, location, priceRange, rating, reviews }: CardDpProps) => {
+const CardDp = ({ title, location, priceRange, rating, reviews, images }: CardDpProps) => {
   return (
     <div className="flex flex-col">
       <Card className="w-[350px] h-[400px] relative transition-transform hover:shadow-xl cursor-pointer">
         <CardHeader>
-          <Image src={Field} width={300} height={200} alt="Field" className="rounded-md w-[300px] h-[200px]" />
+          <Image src={images} width={300} height={200} alt="Field" className="rounded-md w-[300px] h-[200px]" />
         </CardHeader>
         <CardContent>
           <div className='gap-y-4'>

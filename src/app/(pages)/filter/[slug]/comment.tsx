@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Pagination, Button } from '@mui/material';
 import Image from 'next/image';
 import { useUserStore } from '@/services/store/userStore';
-import { useRatingStore } from '@/services/store/fieldStore';
+import { useRatingStore,useFieldStore } from '@/services/store/fieldStore';
 
 interface CommentData {
   customerId: string | null;
@@ -15,17 +15,24 @@ interface CommentData {
 
 interface CommentSectionProps {
   id: string;
-  comments: CommentData[];
+  comments: CommentData[] | null;
 }
 
 const commentsPerPage = 5;
 
-const CommentSection: React.FC<CommentSectionProps> = ({ id, comments: initialComments }) => {
-  console.log(id)
-  const [comments, setComments] = useState<CommentData[]>(initialComments);
+const CommentSection = () => {
+  const field = useFieldStore(state => state.field)
+
+  const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [newRating, setNewRating] = useState(0);
+
+  useEffect(() => {
+    if (field) {
+      setComments(field.ratings)
+    }
+  }, [field])
 
   const info = useUserStore((state) => state.userInfo);
 
@@ -37,7 +44,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id, comments: initialCo
     if (newComment.trim() && newRating > 0) {
       const newCommentData: CommentData = {
         customerId: sessionStorage.getItem('roleId'),
-        sportFieldId: id,
+        sportFieldId: field.id,
         comment: newComment,
         numberOfStar: newRating,
       };

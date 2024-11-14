@@ -32,6 +32,22 @@ export const fetchFields = async (params: FetchFieldsParams = {}) => {
   }
 };
 
+export const fetchField = async (endpoint: string | null) => {
+  try {
+    const response = await axios.get(
+      `https://sportappdemo.azurewebsites.net/api/SportField/GetSportField`, {
+        params: {
+          EndPoint: decodeURIComponent(endpoint)
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching fields:", error);
+    throw error;
+  }
+}
+
 export const postRatingApi = async (rating: Rating | null) => {
   try {
     const response = await axios.post('https://sportappdemo.azurewebsites.net/api/SportField/AddRating', rating)

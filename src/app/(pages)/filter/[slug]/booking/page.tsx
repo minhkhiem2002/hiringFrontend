@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useRef } from 'react';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
@@ -18,8 +18,12 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Divider, Button } from '@mui/material';
 import * as signalR from "@microsoft/signalr";
-import { useRouter } from 'next/navigation'
+import { useRouter, redirect } from 'next/navigation'
 import axios from "axios";
+import { useFieldStore } from '@/services/store/fieldStore';
+import { DetailData } from '@/services/interfaces/fieldInterface';
+import { useBookingStore } from '@/services/store/bookingStore';
+import { Booking } from '@/services/interfaces/bookingInterface';
 
 const steps = ['Chọn thời gian', 'Nhập thông tin', 'Xác nhận & Thanh toán'];
 
@@ -31,9 +35,8 @@ interface TimeSlot {
   status: boolean; 
 }
 export default function BookingPage({ params }: { params: { slug: string } }) {
-  const router = useRouter()
   const id = params.slug;
-  console.log('Slug', id)
+  const router = useRouter()
   const [activeStep, setActiveStep] = useState(0);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
@@ -42,9 +45,30 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
   const today = new Date().toISOString().slice(0, 10);
   const [selectedDate, setSelectedDate] = useState<string | null>(today);
 
+  const field = useFieldStore(state => state.field)
+  const fetchFieldData = useFieldStore(state => state.fetchFieldData)
+
+  console.log('Field', field)
+  const fetchBookingData = useBookingStore(state => state.fetchBookingData)
+
+  const [fieldBooking, setFieldBooking] = useState<DetailData | null>(field)
+
   useEffect(() => {
-    const newTotal = selectedTimes.reduce((acc, time) => {
-      const price = timeSlots.find((t: TimeSlot) => t.startTime === time)?.price || 0;
+    fetchFieldData(id)
+  },[])
+
+  useEffect(() => {
+    if (field) {
+      setFieldBooking(field)
+    }
+  }, [field])
+
+
+  const fieldRef = useRef(fieldBooking)
+
+  useEffect(() => {
+    const newTotal = selectedTimes.reduce((acc, id) => {
+      const price = timeSlots.find((t: TimeSlot) => t.id === id)?.price || 0;
       return acc + price;
     }, 0);
     setTotalPrice(newTotal);
@@ -79,7 +103,6 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
       "GetScheduler",
       (sportFieldId: number, timeSlotId: string) => {
         // Cập nhật trạng thái khung giờ khi nhận tín hiệu từ SignalR
-        console.log('Time',timeSlotId)
         setTimeSlots((prevSlots) =>
           prevSlots.map((slot) =>
             slot.id === timeSlotId ? { ...slot, status: true } : slot
@@ -114,8 +137,6 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
     connection.on(
       "GetScheduler",
       (sportFieldId: number, timeSlotId: string) => {
-        // Cập nhật trạng thái khung giờ khi nhận tín hiệu từ SignalR
-        console.log('Time',timeSlotId)
         setTimeSlots((prevSlots) =>
           prevSlots.map((slot) =>
             slot.id === timeSlotId ? { ...slot, status: true } : slot
@@ -143,16 +164,19 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
     setSelectedDate(date);
   };
 
-  const handleTimeClick = (time: string, status: boolean) => {
+  console.log(selectedTimes)
+
+  const handleTimeClick = (id: string, status: boolean) => {
     if (status) return;
     setSelectedTimes((prev) => {
-      if (prev.includes(time)) {
-        return prev.filter((t) => t !== time);
+      if (prev.includes(id)) {
+        return prev.filter((t) => t !== id);
       } else {
-        return [...prev, time];
+        return [...prev, id];
       }
     });
   };
+  
 
   const handleNext = () => {
     if (activeStep < steps.length - 1) {
@@ -165,6 +189,27 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
       setActiveStep(activeStep - 1);
     }
   };
+
+  const handleBooking = async () => {
+    const dataBooking: Booking = {
+      name: 'Booking',
+      totalPrice: totalPrice,
+      sportFieldId: fieldBooking? fieldBooking.id : '',
+      customerId: sessionStorage.getItem('roleId'),
+      note: 'Note',
+      timeBookedIds: selectedTimes,
+      bookingDate: selectedDate
+    }
+    const response = await fetchBookingData(dataBooking)
+    if (response) {
+      // Redirect to VNPay sandbox or production URL based on environment
+      window.location.href = response;
+  } else {
+      // Handle cases where paymentUrl is missing or API call fails
+      console.error("Payment URL not found in the response.");
+      // You could show a user-friendly error message here
+  }
+  }
 
   const handleUserInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -219,8 +264,8 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                     {timeSlots.map(({ id,startTime,endTime, price, status }: TimeSlot) => (
                       <button
                         key={id}
-                        className={`p-3 border ${status ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : selectedTimes.includes(startTime) ? 'bg-green-500' : 'bg-white'}`}
-                        onClick={() => handleTimeClick(startTime, status)}
+                        className={`p-3 border ${status ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : selectedTimes.includes(id) ? 'bg-green-500' : 'bg-white'}`}
+                        onClick={() => handleTimeClick(id, status)}
                         disabled={status}
                         style={{ margin: '6px' }}
                       >
@@ -237,7 +282,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                       <Grid container columnSpacing={1}>
                         <Grid item xs={4}>
                           <Image
-                            src={DetailImage}
+                            src={fieldBooking ? fieldBooking.images[0].pictureUrl : DetailImage}
                             alt="Football field"
                             width={150}
                             height={80}
@@ -245,18 +290,23 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                           />
                         </Grid>
                         <Grid item xs={8}>
-                          <h3 className="text-md">Sân Bóng Đá Khu A</h3>
-                          <p className="text-sm">Sân liên hợp ĐHQG, Dĩ An, Bình Dương</p>
-                          <p className="text-sm">Sân bóng đá - Sân 5</p>
+                          <h3 className="text-md">{fieldBooking?.name}</h3>
+                          <p className="text-sm">{fieldBooking?.address}</p>
+                          <p className="text-sm">{fieldBooking?.type}</p>
                         </Grid>
                       </Grid>
                       <h4 className="mt-4 text-md font-bold">Ngày: <span className = 'font-medium'>{selectedDate}</span></h4>
                       <h4 className="mt-4 text-md font-bold">Thời gian đặt sân</h4>
-                      <ul className="grid grid-cols-4 gap-4">
-                        {selectedTimes.map((time) => (
-                          <li key={time} className="text-center">{time}</li>
-                        ))}
-                      </ul>
+                      <ul className="grid grid-cols-3 gap-2">
+                      {selectedTimes.map((id) => {
+                        const timeSlot = timeSlots.find((slot) => slot.id === id);
+                        return (
+                          <li key={id} className="text-center">
+                            {timeSlot ? `${timeSlot.startTime} - ${timeSlot.endTime}` : ''}
+                          </li>
+                        );
+                      })}
+                    </ul>
                     </div>
                     <Divider />
                     <p className="font-bold mt-2 flex justify-between">
@@ -303,21 +353,21 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
               <Box className="p-4 bg-gray-100 rounded">
                   <div className = 'min-h-[380px]'>
                   <Grid container columnSpacing={1}>
-                    <Grid item xs={4}>
-                      <Image
-                        src={DetailImage}
-                        alt="Football field"
-                        width={150}
-                        height={80}
-                        className="rounded"
-                      />
-                    </Grid>
-                    <Grid item xs={8}>
-                      <h3 className="text-md">Sân Bóng Đá Khu A</h3>
-                      <p className="text-sm">Sân liên hợp ĐHQG, Dĩ An, Bình Dương</p>
-                      <p className="text-sm">Sân bóng đá - Sân 5</p>
-                    </Grid>
-                  </Grid>
+                        <Grid item xs={4}>
+                          <Image
+                            src={fieldBooking ? fieldBooking.images[0].pictureUrl : DetailImage}
+                            alt="Football field"
+                            width={150}
+                            height={80}
+                            className="rounded"
+                          />
+                        </Grid>
+                        <Grid item xs={8}>
+                          <h3 className="text-md">{fieldBooking?.name}</h3>
+                          <p className="text-sm">{fieldBooking?.address}</p>
+                          <p className="text-sm">{fieldBooking?.type}</p>
+                        </Grid>
+                      </Grid>
                   {/* Hiển thị thông tin người dùng đã nhập */}
                   <h4 className="mt-4 text-md font-bold">Thông tin người dùng</h4>
                   <p className="text-md">Họ và Tên: <span className="font-medium">{userInfo.name}</span></p>
@@ -327,11 +377,17 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                   {/* Selected Times and Total Price */}
                   <h4 className="mt-4 text-md font-bold">Ngày: <span className = 'font-medium'>{selectedDate}</span></h4>
                   <h4 className="mt-4 text-md font-bold">Thời gian đặt sân</h4>
-                  <ul className="grid grid-cols-4 gap-4">
-                    {selectedTimes.map((time) => (
-                      <li key={time} className="text-center">{time}</li>
-                    ))}
+                  <ul className="grid grid-cols-3 gap-2">
+                    {selectedTimes.map((id) => {
+                      const timeSlot = timeSlots.find((slot) => slot.id === id);
+                      return (
+                        <li key={id} className="text-center">
+                          {timeSlot ? `${timeSlot.startTime} - ${timeSlot.endTime}` : ''}
+                        </li>
+                      );
+                    })}
                   </ul>
+
                 </div>
                 <Divider />
                 <p className="font-bold mt-2 flex justify-between">
@@ -355,21 +411,21 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
               <Box className="p-4 bg-gray-100 rounded">
                   <div className = 'min-h-[364px]'>
                   <Grid container columnSpacing={1}>
-                    <Grid item xs={4}>
-                      <Image
-                        src={DetailImage}
-                        alt="Football field"
-                        width={150}
-                        height={80}
-                        className="rounded"
-                      />
-                    </Grid>
-                    <Grid item xs={8}>
-                      <h3 className="text-md">Sân Bóng Đá Khu A</h3>
-                      <p className="text-sm">Sân liên hợp ĐHQG, Dĩ An, Bình Dương</p>
-                      <p className="text-sm">Sân bóng đá - Sân 5</p>
-                    </Grid>
-                  </Grid>
+                        <Grid item xs={4}>
+                          <Image
+                            src={fieldBooking ? fieldBooking.images[0].pictureUrl : DetailImage}
+                            alt="Football field"
+                            width={150}
+                            height={80}
+                            className="rounded"
+                          />
+                        </Grid>
+                        <Grid item xs={8}>
+                          <h3 className="text-md">{fieldBooking?.name}</h3>
+                          <p className="text-sm">{fieldBooking?.address}</p>
+                          <p className="text-sm">{fieldBooking?.type}</p>
+                        </Grid>
+                      </Grid>
                   {/* Hiển thị thông tin người dùng đã nhập */}
                   <h4 className="mt-4 text-md font-bold">Thông tin người dùng</h4>
                   <p className="text-md">Họ và Tên: <span className="font-medium">{userInfo.name}</span></p>
@@ -379,10 +435,15 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                   {/* Selected Times and Total Price */}
                   <h4 className="mt-4 text-md font-bold">Ngày: <span className = 'font-medium'>{selectedDate}</span></h4>
                   <h4 className="mt-4 text-md font-bold">Thời gian đặt sân</h4>
-                  <ul className="grid grid-cols-4 gap-4">
-                    {selectedTimes.map((time) => (
-                      <li key={time} className="text-center">{time}</li>
-                    ))}
+                  <ul className="grid grid-cols-3 gap-2">
+                    {selectedTimes.map((id) => {
+                      const timeSlot = timeSlots.find((slot) => slot.id === id);
+                      return (
+                        <li key={id} className="text-center">
+                          {timeSlot ? `${timeSlot.startTime} - ${timeSlot.endTime}` : ''}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
                 <Divider />
@@ -411,13 +472,23 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
             >
               Quay lại
             </Button>
+            {activeStep === steps.length - 1 ? 
             <Button
-              onClick={handleNext}
+              onClick={handleBooking}
               variant="contained"
               color="primary"
             >
-              {activeStep === steps.length - 1 ? 'Hoàn thành' : 'Tiếp theo'}
+              Đặt sân
             </Button>
+            :
+            <Button
+            onClick={handleNext}
+            variant="contained"
+            color="primary"
+            >
+            Tiếp theo
+            </Button>
+            } 
           </div>
         </div>
       </div>

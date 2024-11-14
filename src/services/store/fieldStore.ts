@@ -1,12 +1,19 @@
 import { create } from 'zustand';
-import { Field, Rating } from '../interfaces/fieldInterface';
-import { fetchFields, FetchFieldsParams, postRatingApi } from '../api/fieldsApi';
+import { Field, Rating, DetailData } from '../interfaces/fieldInterface';
+import { fetchFields, fetchField, FetchFieldsParams, postRatingApi } from '../api/fieldsApi';
 
 interface FieldsState {
   fields: Field[];
   loading: boolean;
   error: string | null;
   fetchFieldsData: (params?: FetchFieldsParams) => Promise<void>;
+}
+
+interface FieldState {
+  field: DetailData | null;
+  loading: boolean;
+  error: string | null;
+  fetchFieldData: (endpoint: string | null) => Promise<void>;
 }
 
 type RatingState = {
@@ -28,6 +35,21 @@ export const useFieldsStore = create<FieldsState>((set) => ({
       set({ fields: fieldsData, loading: false });
     } catch (error) {
       set({ error: 'Failed to fetch fields data', loading: false });
+    }
+  },
+}));
+
+export const useFieldStore = create<FieldState>((set) => ({
+  field: null,
+  loading: false,
+  error: null,
+  fetchFieldData: async (endpoint) => {
+    set({ loading: true, error: null });
+    try {
+      const fieldData = await fetchField(endpoint);
+      set({ field: fieldData, loading: false });
+    } catch (error) {
+      set({ error: 'Failed to fetch field data', loading: false });
     }
   },
 }));

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation"; // Sử dụng usePathname thay cho useRouter
 import {
   Bell,
+  BellRing,
   Menu,
   Package,
   Package2,
@@ -12,11 +13,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Image from 'next/image';
+import { useUserStore } from "@/services/store/userStore";
 
 const ProfileSidebar = ({ fullName, avatar }: { fullName: string; avatar: string }) => {
-  const pathname = usePathname(); // Lấy path hiện tại
+  const pathname = usePathname(); 
 
   const isActive = (path: string) => pathname === path;
+
+  const info = useUserStore((state) => state.userInfo);
 
   return (
     <div className="hidden border-r h-[89%] bg-muted/40 md:block">
@@ -24,15 +28,15 @@ const ProfileSidebar = ({ fullName, avatar }: { fullName: string; avatar: string
         <div className="flex h-14 items-center border-b px-4 lg:h-[80px] lg:px-6">
           <div className="flex items-center gap-2 font-semibold">
             <Image
-              src={avatar}
+              src={info?.avatar || undefined}
               alt="avata"
               width="50"
               height="50"
-              className="border rounded-3xl"
+              className="border rounded-3xl w-10 h-10"
             />
             <div className="flex flex-col mt-2">
               <span className="text-xs text-[#566976]">Tài khoản của</span>
-              <span className="text-md text-[#566976]">{fullName}</span>
+              <span className="text-md text-[#566976]">{`${info?.firstName} ${info?.lastName}`}</span>
             </div>
           </div>
           <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
@@ -52,13 +56,13 @@ const ProfileSidebar = ({ fullName, avatar }: { fullName: string; avatar: string
               Thông tin tài khoản
             </Link>
             <Link
-              href="/user/consignment"
+              href="/user/notification"
               className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                isActive("/user/consignment") ? "bg-muted text-muted-foreground" : "text-muted-foreground"
+                isActive("/user/notification") ? "bg-muted text-muted-foreground" : "text-muted-foreground"
               }`}
             >
-              <Package2 className="h-4 w-4" />
-              Quản lý ký gửi
+              <BellRing className="h-4 w-4" />
+              Thông báo
             </Link>
             <Link
               href="/user/order"
