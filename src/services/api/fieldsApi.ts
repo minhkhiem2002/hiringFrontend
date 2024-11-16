@@ -15,7 +15,7 @@ export interface FetchFieldsParams {
 
 export const fetchFields = async (params: FetchFieldsParams = {}) => {
   try {
-    const response = await axios.get(`BASE_URL` + '/GetSportFields', {
+    const response = await axios.get(BASE_URL + '/GetSportFields', {
       params: {
         PageSize: params.pageSize || 10,
         PageNumber: params.pageNumber || 1,

@@ -76,6 +76,8 @@ const Navbar = () => {
     setState(false);
     setInfo(null);
     sessionStorage.removeItem("userId");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("roleId");
     router.push("/login", { scroll: false });
   };
 
@@ -149,17 +151,18 @@ const Navbar = () => {
         </Grid>
 
         {/* Navigation Links */}
-        <Grid item xs={7.5} container spacing={2} justifyContent="start" alignItems="center" className = 'mt-1'>
+        <Grid item xs={7.5} container spacing={2} justifyContent="start" alignItems="center" className = 'mt-4'>
           <Input
             type="search"
             placeholder="Search..."
-            className="rounded-lg bg-background pl-8 ml-4 w-[400px]"
+            className="rounded-lg bg-background pl-8 mt-2 ml-4 w-[400px]"
           />
-          <Link href="/filter" className="mx-3">Thông tin sân</Link>
-          <Link href="/docs" className="mx-3">Sự kiện</Link>
-          <Link href="/docs" className="mx-3">Tin tức</Link>
-          <Link href="/faq" className="mx-3">FAQ</Link>
-          <Link href="/contact" className="mx-3">Liên hệ</Link>
+          <Link href="/filter" className="mx-3 mt-2">Thông tin sân</Link>
+          <Link href="/equipment" className="mx-3 mt-2">Thiết bị</Link>
+          <Link href="/team" className="mx-3 mt-2">Team</Link>
+          <Link href="/docs" className="mx-3 mt-2">Tin tức</Link>
+          <Link href="/faq" className="mx-3 mt-2">FAQ</Link>
+          <Link href="/contact" className="mx-3 mt-2">Liên hệ</Link>
         </Grid>
 
         {/* User Info and Buttons */}
@@ -278,18 +281,6 @@ const Navbar = () => {
               className="mr-2"
             />
             Đổi mật khẩu
-          </div>
-        </MenuItem>
-
-        <MenuItem onClick={chuyenPhanhe}>
-          <div className='w-full flex py-1'>
-            <img
-              src={UserIcon}
-              alt="icon_menu_change"
-              width={20}
-              className="mr-2"
-            />
-            Chuyển phần mềm
           </div>
         </MenuItem>
         <Divider />

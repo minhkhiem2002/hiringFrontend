@@ -1,88 +1,73 @@
-'use client'
-import React, { useState } from 'react';
-import dataTeam from '../../../../ultils/dataTeam.json';
-import { Pagination } from '@mui/material';
-import { Button } from '@mui/material';
-import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import CardTeam from "./../../../../components/user/card-team/card-team";
-import Navbar from "./../../../../components/user/main-nav";
-import ModalTeam from "./../../../../components/user/card-team/modal-team";
-import ProfileSidebar from "./../../../../components/user/profile-sidebar";
+'use client';
+import React, { useEffect, useState } from 'react';
+import { Pagination, Button, TextField, InputLabel, Select, MenuItem, Tabs, Tab } from '@mui/material';
+import Link from 'next/link';
+import Navbar from './../../../../components/user/main-nav';
+import ProfileSidebar from './../../../../components/user/profile-sidebar';
+import CardTeams from '@/components/user/card-team/card-teams';
+import { useTeamStore } from "@/services/store/teamStore";
 
 interface Team {
-  id: number;
   name: string;
-  level: string;
-  location: string;
-  contact: string;
-  members: number;
-  description: string;
-  achievements: string;
-  field: string;
-  area: string;
+  address: string;
+  currentMember: number;
+  limitMember: number;
+  sport: string;
+  endpoint: string;
+  avatar: string | null;
 }
 
 const TeamPage: React.FC = () => {
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [currentTab, setCurrentTab] = useState<number>(0);
-  const [filterField, setFilterField] = useState<string>('');
+  const [filterSport, setFilterSport] = useState<string>('');
   const [filterArea, setFilterArea] = useState<string>('');
   const [search, setSearch] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 4;
 
-  // Mock dữ liệu người dùng cho ProfileSidebar
-  const fullName = "Nguyễn Văn A";
-  const avatar = "/images/avata.jpg"; // Giả định đường dẫn ảnh avatar
+  // Fetch data from the store
+  const { fetchTeamsDataById, teambyid, loading } = useTeamStore();
 
-  // Mở modal khi click vào chi tiết đội
-  const handleOpenModal = (team: Team) => {
-    setSelectedTeam(team);
-    setOpenModal(true);
-  };
+  useEffect(() => {
+    const roleId = sessionStorage.getItem('roleId');
+    fetchTeamsDataById(roleId);
+  }, [fetchTeamsDataById]);
 
-  // Đóng modal
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    setSelectedTeam(null);
-  };
+  // Ensure teambyid.sportTeams is an array
+  const sportTeams = Array.isArray(teambyid?.sportTeams) ? teambyid.sportTeams : [];
 
-  // Thay đổi tab
+  console.log('Team',sportTeams)
+
+  // Filter teams based on search, sport, and area
+  const filteredTeams = sportTeams
+    .filter(team =>
+      team.name.toLowerCase().includes(search.toLowerCase()) &&
+      (!filterSport || team.sport === filterSport) &&
+      (!filterArea || team.address.includes(filterArea))
+    )
+    .slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  // Handle tab change
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
   };
 
-  // Thay đổi filter
+  // Handle filter change
   const handleFilterChange = (event: React.ChangeEvent<{ value: unknown }>, type: string) => {
     const value = event.target.value as string;
-    if (type === 'field') setFilterField(value);
+    if (type === 'sport') setFilterSport(value);
     if (type === 'area') setFilterArea(value);
   };
 
-  // Thay đổi tìm kiếm
+  // Handle search input
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
   };
 
-  // Thay đổi trang pagination
+  // Handle pagination change
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   };
-
-  // Lọc dữ liệu team theo tên, field, và area
-  const filteredTeams = dataTeam
-    .filter(team =>
-      team.name.toLowerCase().includes(search.toLowerCase()) &&
-      (!filterField || team.field === filterField) &&
-      (!filterArea || team.area === filterArea)
-    )
-    .slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div>
@@ -90,7 +75,7 @@ const TeamPage: React.FC = () => {
         <Navbar />
       </div>
       <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-        <ProfileSidebar fullName={fullName} avatar={avatar} />
+        <ProfileSidebar fullName="Nguyễn Văn A" avatar="/images/avatar.jpg" />
         <div className="flex flex-col h-[89%]">
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
             <Tabs value={currentTab} onChange={handleTabChange}>
@@ -107,16 +92,16 @@ const TeamPage: React.FC = () => {
                 onChange={handleSearchChange}
                 className="mr-4"
               />
-              <InputLabel id="field-select-label">Loại sân</InputLabel>
+              <InputLabel id="sport-select-label">Loại thể thao</InputLabel>
               <Select
-                labelId="field-select-label"
-                value={filterField}
-                onChange={(e: any) => handleFilterChange(e, 'field')}
+                labelId="sport-select-label"
+                value={filterSport}
+                onChange={(e: any) => handleFilterChange(e, 'sport')}
                 className="mr-4"
               >
                 <MenuItem value="">Tất cả</MenuItem>
-                <MenuItem value="Sân cỏ">Sân cỏ</MenuItem>
-                <MenuItem value="Sân đất">Sân đất</MenuItem>
+                <MenuItem value="Bóng đá">Bóng đá</MenuItem>
+                <MenuItem value="Bóng rổ">Bóng rổ</MenuItem>
               </Select>
 
               <InputLabel id="area-select-label">Khu vực</InputLabel>
@@ -129,10 +114,6 @@ const TeamPage: React.FC = () => {
                 <MenuItem value="">Tất cả</MenuItem>
                 <MenuItem value="Hà Nội">Hà Nội</MenuItem>
                 <MenuItem value="Hồ Chí Minh">Hồ Chí Minh</MenuItem>
-                <MenuItem value="Bình Dương">Bình Dương</MenuItem>
-                <MenuItem value="Cần Thơ">Cần Thơ</MenuItem>
-                <MenuItem value="Gia Lai">Gia Lai</MenuItem>
-                <MenuItem value="Nghệ An">Nghệ An</MenuItem>
               </Select>
 
               <Button variant="contained" color="primary" className="ml-auto">
@@ -140,26 +121,34 @@ const TeamPage: React.FC = () => {
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              {filteredTeams.map((team) => (
-                <CardTeam key={team.id} team={team} onDetailClick={() => handleOpenModal(team)} />
-              ))}
+            <div className="grid grid-cols-3 gap-4">
+              {loading ? (
+                <p>Đang tải dữ liệu...</p>
+              ) : (
+                filteredTeams.map(team => (
+                  <Link key={team.endpoint} href={`/team/${team.endpoint}`} passHref>
+                    <div className="cursor-pointer">
+                      <CardTeams 
+                        name = {team.name}
+                        address = {team.address}
+                        currentMember = {team.currentMember}
+                        limitMember = {team.limitMember}
+                        sport = {team.sport}
+                        avatar = {team.avatar}
+                        endpoint={team.endpoint}
+                      />
+                    </div>
+                  </Link>
+                ))
+              )}
             </div>
 
             <Pagination
-              count={Math.ceil(dataTeam.length / pageSize)}
+              count={Math.ceil((teambyid?.count || 0) / pageSize)}
               page={currentPage}
               onChange={handlePageChange}
               className="mt-4"
             />
-
-            {selectedTeam && (
-              <ModalTeam
-                open={openModal}
-                onClose={handleCloseModal}
-                team={selectedTeam}
-              />
-            )}
           </main>
         </div>
       </div>
