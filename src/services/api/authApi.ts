@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { UserInfo, UserPasswordUpdate } from '../interfaces/authInterface';
+import { ResetPassword, SendMail, UserInfo, UserPasswordUpdate } from '../interfaces/authInterface';
 
 const API_URL = 'https://sportappdemo.azurewebsites.net/api/User';
 
@@ -71,3 +71,21 @@ export const updateAvatarApi = async (avatarData: FormData) => {
   });
   return response;
 };
+
+
+export const forgetPasswordApi = async (email: string) => {
+  const response = await axios.post(`${API_URL}/ForgetPassword`, { email });
+  return response.data;
+};
+
+export const resetPasswordApi = async (reset: ResetPassword) => {
+  const response = await axios.post(`${API_URL}/ResetPassword`,reset);
+  return response.data;
+};
+
+export const sendEmailApi = async (sendEmail: SendMail) => {
+  const response = await axios.post(`${API_URL}/ForgetPassword`,sendEmail);
+  return response.data;
+};
+
+

@@ -23,7 +23,7 @@ import Link from "next/link";
 import axios from "axios";
 import { Box, Skeleton } from "@mui/material";
 import { useTeamStore } from "@/services/store/teamStore";
-import CardTeams from "@/components/user/card-team/card-teams";
+import CardTeam from "@/components/user/card-team/card-team";
 
 const categories = [
   { id: "Bóng đá", label: "Bóng đá" },
@@ -176,17 +176,17 @@ const Equipment = () => {
               <div className="grid grid-cols-3 gap-4">
                 {filteredItems && filteredItems.length > 0 ? (
                   filteredItems.map((item) => (
-                    <Link href={`/team/${item.endpoint}`} key={item.id}>
-                      <CardTeams 
-                        name = {item.name}
-                        address = {item.address}
-                        currentMember = {item.currentMember}
-                        limitMember = {item.limitMember}
-                        sport = {item.sport}
-                        avatar = {item.avatar}
-                        endpoint={item.endpoint}
-                      />
-                      </Link>
+                    <Link key={item.endpoint} href={`/team/${item.endpoint}`} passHref>
+                    <CardTeam 
+                      name = {item.name}
+                      address = {item.address}
+                      currentMember = {item.currentMember}
+                      limitMember = {item.limitMember}
+                      sport = {item.sport}
+                      avatar = {item.avatar}
+                      endpoint={item.endpoint}
+                    />
+                </Link>
                   ))
                 ) : (
                   <p>No items found</p>

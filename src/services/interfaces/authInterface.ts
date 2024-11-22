@@ -52,3 +52,20 @@ export interface LoginApiResponse {
   refresh_token: string;
   message?: string;
 }
+
+
+export interface ForgetPassword {
+  email: string;
+}
+
+export interface SendMail {
+  toEmail: string;
+  subject: string;
+  body: string;
+}
+
+export interface ResetPassword {
+  email: string;
+  decodedToken: string;
+  password: string;
+}

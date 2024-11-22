@@ -22,7 +22,7 @@ import Stack from "@mui/material/Stack";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import Link from "next/link";
 import axios from "axios";
-import { useFieldsStore } from "@/services/store/fieldStore";
+import { useEquipmentStore } from "@/services/store/equipmentStore";
 import { Box, Grid, Skeleton } from "@mui/material";
 
 const categories = [
@@ -34,15 +34,6 @@ const categories = [
   { id: "Thể thao trong nhà", label: "Thể thao trong nhà" },
 ];
 
-const locations = [
-  { id: "Quận 1", label: "Quận 1" },
-  { id: "Quận 3", label: "Quận 3" },
-  { id: "Quận 5", label: "Quận 5" },
-  { id: "Quận 10", label: "Quận 10" },
-  { id: "Quận Bình Thạnh", label: "Quận Bình Thạnh" },
-  { id: "Quận Gò Vấp", label: "Quận Gò Vấp" },
-  { id: "Khác", label: "Khác" },
-];
 
 const ratings = [
   { id: "5star", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /></div> },
@@ -58,7 +49,6 @@ const itemsPerPage = 9;
 const FormSchema = z.object({
   search: z.string().optional(),
   items: z.array(z.string()).optional(),
-  locations: z.array(z.string()).optional(),
   ratings: z.array(z.string()).optional(),
   minPrice: z.number().optional(),
   maxPrice: z.number().optional(),
@@ -70,65 +60,43 @@ const Equipment = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchFieldsData = useFieldsStore(state => state.fetchFieldsData)
+  const {fetchEquipmentsData} = useEquipmentStore()
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       search: '',
       items: [],
-      locations: [],
       ratings: [],
       minPrice: 0,
       maxPrice: 1000000,
-
     },
   });
 
-  const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        },
-        (error) => {
-          setError(error.message);
-        }
-      );
-    } else {
-      setError("Trình duyệt không hỗ trợ Geolocation.");
-    }
-  }, []);
 
   // Hàm gọi API
   const fetchFilteredData = async () => {
-    const { items, locations, ratings, minPrice, maxPrice } = form.getValues();
+    const { items, ratings, minPrice, maxPrice } = form.getValues();
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `https://sportappdemo.azurewebsites.net/api/SportField/GetSportFields`, {
+        `https://sportappdemo.azurewebsites.net/api/SportProduct/GetSportProducts`, {
           params: {
             PageSize: itemsPerPage,
             PageNumber: currentPage,
             Search: null,
             Sort: "rating",
             Sports: items ? items.join(",") : null,
-            StarRatings: ratings ? ratings.join(",") : null,
-            MinPrice: minPrice,
-            MaxPrice: maxPrice,
-            UserLat: location? location.latitude : 0,
-            UserLong: location ? location.longitude : 0,
+            OrderBy: null,
+            Colors: null,
+            Sizes: null
           },
         }
       );
 
-      setFilteredItems(response.data.fields); 
+      setFilteredItems(response.data.products); 
       setTotalItems(response?.data?.count); 
     } catch (error) {
       toast({
@@ -146,18 +114,12 @@ const Equipment = () => {
     fetchFilteredData();
   }, [
     form.watch("items"),
-    form.watch("locations"),
     form.watch("ratings"),
     form.watch("minPrice"),
     form.watch("maxPrice"),
     currentPage,
   ]);
 
-  useEffect(() => {
-    if (location) {
-      fetchFilteredData();
-    }
-  },[location])
 
   // Số trang dựa trên tổng số mục trả về từ API
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -270,13 +232,14 @@ const Equipment = () => {
               <div className="grid grid-cols-3 gap-4">
                 {filteredItems && filteredItems.length > 0 ? (
                   filteredItems.map((item) => (
-                    <Link href={`/equipment/${item.endPoint}`} key={item.id}>
+                    // <Link href={`/equipment/${item.colorEndpoints[0].endPoint}`} key={item.id}>
                       <CardEq 
-                          title={item.name} 
-                          priceRange={item.priceRange} 
-                          images={item.pictureUrl}
+                          pictureUrl={item.pictureUrl} 
+                          colorEndpoints={item.colorEndpoints} 
+                          price={item.price}
+                          name={item.name}
                         />
-                    </Link>
+                    // </Link>
                   ))
                 ) : (
                   <p>No items found</p>

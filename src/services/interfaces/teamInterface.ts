@@ -5,6 +5,13 @@ export interface TeamMember {
     role: string;
 }
 
+export interface TeamRequest {
+    content: string;
+    customerId: string;
+    name: string;
+    avatar: string;
+}
+
 export interface Team {
     name: string;
     address: string;
@@ -23,6 +30,7 @@ export interface TeamParams {
 
 export interface TeamDetailData {
     id: string;
+    leaderId: string;
     sport: string;
     name: string;
     description: string;
@@ -33,9 +41,43 @@ export interface TeamDetailData {
     limitMember: number;
     avatar: string;
     members: TeamMember[];
+    requests: TeamRequest[];
 }
 
 export interface JoinTeam {
     customerId: string;
     sportTeamId: string;
 }
+
+export interface HandleTeamRequest {
+    customerId: string | null;
+    sportTeamId: string;
+    accept: boolean;
+}
+
+export interface DeleteTeamMemberRequest {
+    sportTeamId: string | null;
+    customerId: string | null;
+    captainId: string | null;
+}
+
+export interface PostTeam {
+    Name: string;
+    Sport: string;
+    Description: string;
+    Address: string;
+    Note: string;
+    LimitMember: number;
+    CustomerId: string;
+    Avatar: string;
+  }
+
+  export interface UpdateTeam {
+    sportTeamId: string;
+    sport: string;
+    name: string;
+    description: string;
+    address: string;
+    note: string;
+    limitMember: number;
+  }

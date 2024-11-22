@@ -23,6 +23,7 @@ import Link from 'next/link'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { useNotificationsStore } from "@/services/store/notificationStore";
+import { useCartStore } from "@/services/store/cartStore";
 
 const Login = () => {
   const router = useRouter()
@@ -40,6 +41,7 @@ const Login = () => {
 
   const login = useAuthStore(state => state.login)
   const getInfo = useUserStore((state) => state.getInfo);
+  const fetchCart = useCartStore(state => state.fetchCart)
   const fetchNotificationCount = useNotificationsStore(state => state.fetchNotificationCount);
 
   const onSubmit = async (values: LoginBodyType) => {
@@ -53,9 +55,10 @@ const Login = () => {
   
           await getInfo(response.id);
           await fetchNotificationCount(response.userRoleId)
+          await fetchCart()
           setTimeout(async () => {
             router.push('/');
-          }, 2000);
+          }, 1000);
         } 
         else if (response.role == 'Admin') {
           toast.success('Đăng nhập thành công', { autoClose: 1500 });

@@ -30,6 +30,7 @@ import {
 import { useAuthStore } from "@/services/store/authStore";
 import { useNotificationsStore } from "@/services/store/notificationStore";
 import { NotificationParams } from "@/services/api/notificationApi";
+import { useCartStore } from "@/services/store/cartStore";
 
 function formatDate(dateString:any) {
   const date = new Date(dateString);
@@ -56,17 +57,15 @@ const Navbar = () => {
   const notificationCount = useNotificationsStore((state) => state.notificationCount);
   const fetchNotificationCount = useNotificationsStore(state => state.fetchNotificationCount);
   const  fetchNotifications = useNotificationsStore(state => state.fetchNotifications);
+  const fetchCart = useCartStore(state => state.fetchCart)
+  const { quantity } = useCartStore();
   const notifications = useNotificationsStore((state) => state.notifications);
 
-  // useEffect(() => {
-  //   if (putSuccess) {
-  //     const id = sessionStorage.getItem("userId");
-  //     if (id) {
-  //       getInfo(id);
-  //       fetchNotificationCount(id);
-  //     } 
-  //   }
-  // }, [putSuccess]);
+  console.log("Total Amount:", quantity);
+
+  useEffect(() => {
+    fetchCart()
+  },[])
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -127,8 +126,6 @@ const Navbar = () => {
     setAnchorEl(event.currentTarget);
   };
 
-  console.log('Notify Nav', notifications)
-
   return (
     <Box className="w-full bg-slate-100">
       <Grid
@@ -169,6 +166,11 @@ const Navbar = () => {
         <Grid item xs={3} container alignItems="center" justifyContent="flex-end">
           {loading ? <Loading /> : (
           <Box className="flex items-center gap-2">
+            <button type="button" onClick={() => router.push('/cart')}>
+                  <Badge color="secondary" badgeContent={quantity} showZero>
+                    <ShoppingCartIcon />
+                  </Badge>
+                </button>
             {sessionStorage.getItem('userId') ? (
               <div className="flex justify-center items-center gap-4">
                 <button aria-describedby={idNoti} type="button" onClick={handleClickNoti}>

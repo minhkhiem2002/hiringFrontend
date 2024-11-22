@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Team, TeamParams, JoinTeam } from '../interfaces/teamInterface';
+import { Team, TeamParams, JoinTeam, PostTeam,UpdateTeam, HandleTeamRequest, DeleteTeamMemberRequest } from '../interfaces/teamInterface';
 import { ToastContainer, toast } from 'react-toastify'
 
 const BASE_URL = 'https://sportappdemo.azurewebsites.net/api/SportTeam';
@@ -64,3 +64,75 @@ export const fetchTeams = async (params: TeamParams = {}) => {
     throw error;
   }
 }
+
+export const postCreateTeamApi = async (sportteam: PostTeam) => {
+  try {
+    const response = await axios.post(
+      'https://sportappdemo.azurewebsites.net/api/SportTeam/CreateSportTeam',
+      sportteam,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data', 
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error creating team:", error);
+    throw error;
+  }
+};
+
+export const patchUpdateTeamApi = async (sportteam: UpdateTeam) => {
+  try {
+    const response = await axios.patch(
+      'https://sportappdemo.azurewebsites.net/api/SportTeam/UpdateSportTeam',
+      sportteam
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error update team:", error);
+    throw error;
+  }
+};
+
+export const deleteTeamApi = async (sportTeamId: string) => {
+  try {
+    const dataDelete = {
+      "sportTeamId": sportTeamId
+    }
+    const response = await axios.delete('https://sportappdemo.azurewebsites.net/api/SportTeam/DeleteSportTeam', {
+      data: sportTeamId, 
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting sport team:", error);
+    throw error;
+  }
+};
+
+export const postRequestJoinTeamApi = async (request: HandleTeamRequest) => {
+  try {
+    const response = await axios.post(
+      'https://sportappdemo.azurewebsites.net/api/SportTeam/HandleRequest',
+      request,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error handle request team:", error);
+    throw error;
+  }
+};
+
+export const deleteTeamMemberApi = async (deleteMember: DeleteTeamMemberRequest) => {
+  try {
+    const response = await axios.delete('https://sportappdemo.azurewebsites.net/api/SportTeam/DeleteMember', {
+      data: deleteMember, 
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting team member:", error);
+    throw error;
+  }
+};
+

@@ -8,6 +8,7 @@ import { CiLocationOn } from "react-icons/ci";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaRegHeart } from "react-icons/fa";
 import ViewTeamMemberDialog from "@/components/user/teammember";
+import TeamRequestModal from "@/components/user/teamrequestmodal";
 import Navbar from "@/components/user/main-nav";
 import { TiNews } from "react-icons/ti";
 import { Grid } from "@mui/material";
@@ -26,6 +27,7 @@ function Detail({ params }: { params: { slug: string } }) {
   const id = params.slug;
   const position = [10.84488722399991, 106.63925902499713];
   const [unloginModal, setUnLoginModal] = useState(false);
+  const [requestModal, setRequestModal] = useState(false);
 
   const fetchTeamData = useTeamStore((state) => state.fetchTeamData);
   const fetchJoinTeam = useTeamStore((state) => state.fetchJoinTeam);
@@ -35,6 +37,10 @@ function Detail({ params }: { params: { slug: string } }) {
   useEffect(() => {
     fetchTeamData(id);
   }, [id, fetchTeamData]);
+
+  const handleAccept = () => {
+    setRequestModal(true)
+  }
 
   const handleApply = async () => {
     const user = sessionStorage.getItem("roleId"); 
@@ -116,19 +122,26 @@ function Detail({ params }: { params: { slug: string } }) {
               </span>
             </p>
             <div className="flex gap-12">
-              <ViewTeamMemberDialog members={team?.members}/>
+              <ViewTeamMemberDialog members={team?.members} id={team?.id} endpoint = {team?.endpoint}/>
               <Button
                 className="bg-[#31AAB7] text-white px-4 py-0 text-md hover:bg-[#6DCDD8]"
                 onClick={() => handleApply()}
               >
                 <FaCartShopping className="size-4 text-white mr-2" /> Xin gia nhập
               </Button>
-              <Button
-                variant="outline"
-                className="border-[#28A745] text-[#28A745] px-4 py-0 text-md hover:text-[#28A745]"
+              {team?.leaderId == sessionStorage.getItem('roleId') ? 
+                (
+                  <>
+                  <Button variant="outline" className="border-[#28A745] text-[#28A745] px-4 py-0 text-md"
+                onClick={() => handleAccept()}
               >
-                <FaRegHeart className="size-4 text-[#28A745] mr-2" /> Theo dõi
+                <FaRegHeart className="size-4 text-[#28A745] mr-2" /> Danh sách xin
               </Button>
+              <TeamRequestModal open = {requestModal} onClose={() => setRequestModal(false)} requests={team? team.requests : []} id={team? team.id : ''} endpoint={team? team.endpoint : ''}/>
+                  </>
+                ) : null
+              }
+              
             </div>
           </div>
         </div>

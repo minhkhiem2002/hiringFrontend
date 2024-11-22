@@ -1,27 +1,34 @@
 import React from 'react';
-import { Card, CardContent, CardActions, Button } from '@mui/material';
+import { Card, CardContent } from '@mui/material';
 
 interface CardTeamProps {
-  team: any;
-  onDetailClick: () => void;
+  id: string;
+  name: string;
+  address: string;
+  currentMember: number;
+  limitMember: number;
+  sport: string;
+  avatar: string;
 }
 
-const CardTeam: React.FC<CardTeamProps> = ({ team, onDetailClick }) => {
+const CardTeam: React.FC<CardTeamProps> = ({
+  name,
+  address,
+  currentMember,
+  limitMember,
+  sport,
+  avatar,
+}) => {
   return (
     <Card className="border p-4">
       <CardContent>
-        <img src={team.logo} alt={team.name} className="h-12 w-12 mb-4" />
-        <h2 className="font-bold text-xl">{team.name}</h2>
-        <p>Trình độ: {team.level}</p>
-        <p>Địa điểm: {team.location}</p>
-        <p>Liên hệ: {team.phone}</p>
-        <p>Thành viên: {team.members}</p>
+        <img src={avatar} alt={name} className="h-[250px] w-[400px] mb-4" />
+        <h2 className="font-bold text-xl">{name}</h2>
+        <p>Thể loại: {sport}</p>
+        <p>Địa điểm: {address}</p>
+        <p>Số thành viên tối đa: {limitMember}</p>
+        <p>Thành viên hiện tại: {currentMember}</p>
       </CardContent>
-      <CardActions>
-        <Button variant="contained" color="primary" onClick={onDetailClick}>
-          Xem chi tiết
-        </Button>
-      </CardActions>
     </Card>
   );
 };

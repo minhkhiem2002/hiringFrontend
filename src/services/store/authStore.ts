@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User, SignUpUser } from '../interfaces/authInterface';
+import { User, SignUpUser, ResetPassword, SendMail } from '../interfaces/authInterface';
 import { loginApi, registerApi } from '../api/authApi';
+import { forgetPasswordApi, resetPasswordApi, sendEmailApi } from '../api/authApi';
 
 type State = {
   user: User | null;
@@ -85,3 +86,66 @@ export const useSignUpStore = create<SUpState & SUpAction>(
     }
   )
 );
+
+interface ForgetPassword {
+  data: string | null;
+  isLoading: boolean;
+  isError: boolean;
+  forgetPassword: (email: string) => Promise<boolean>;
+  resetPassword: (reset: ResetPassword) => Promise<boolean>;
+  sendEmail: (sendMail: SendMail) => Promise<boolean>;
+}
+
+export const useForgetPasswordStore = create<ForgetPassword>((set, get) => ({
+  data: null,
+  isLoading: false,
+  isError: false,
+  forgetPassword: async (email: string) => {
+    if (!email) return;
+    set({ isLoading: true, isError: false})
+    try { 
+      const forgetData = await forgetPasswordApi(email)
+      if (forgetData) {
+        set({ data: forgetData ,isLoading: false, isError: false})
+      } else {
+        set({ data: forgetData ,isLoading: false, isError: true})
+      }
+      return forgetData;
+    } catch (err) {
+      console.error('failed', err);
+      return false;;
+    }
+  },
+  resetPassword: async (reset: ResetPassword) => {
+    if (!reset) return;
+    set({ isLoading: true, isError: false})
+    try { 
+      const resetData = await resetPasswordApi(reset)
+      if (resetData) {
+        set({ data: resetData ,isLoading: false, isError: false})
+      } else {
+        set({ data: resetData ,isLoading: false, isError: true})
+      }
+      return resetData;
+    } catch (err) {
+      console.error('failed', err);
+      return false;;
+    }
+  },
+  sendEmail: async (sendMail: SendMail) => {
+    if (!sendMail) return;
+    set({ isLoading: true, isError: false})
+    try { 
+      const sendMailData = await sendEmailApi(sendMail)
+      if (sendMailData) {
+        set({ data: sendMailData ,isLoading: false, isError: false})
+      } else {
+        set({ data: sendMailData ,isLoading: false, isError: true})
+      }
+      return sendMailData;
+    } catch (err) {
+      console.error('failed', err);
+      return false;;
+    }
+  }
+}))
