@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { AiOutlineTag, AiFillStar } from "react-icons/ai";
+import { FaFutbol } from "react-icons/fa";
 
 interface ColorEndpoint {
   endPoint: string;
@@ -14,6 +16,7 @@ interface CardProductProps {
   colorEndpoints: ColorEndpoint[];
   price: number;
   name: string;
+  sport: string;
 }
 
 const CardProduct = ({
@@ -21,6 +24,7 @@ const CardProduct = ({
   colorEndpoints = [],
   price,
   name,
+  sport,
 }: CardProductProps) => {
   const [selectedColor, setSelectedColor] = useState<ColorEndpoint | null>(
     colorEndpoints[0] || null
@@ -39,9 +43,11 @@ const CardProduct = ({
   };
 
   return (
-    <div className="w-[350px] h-[450px] bg-white shadow-md rounded-lg p-4 flex flex-col justify-between hover:shadow-lg transition-transform cursor-pointer">
+    <div className="w-[350px] h-[520px] bg-white shadow-lg rounded-lg p-4 flex flex-col justify-between transform transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer">
+      {/* Image Section */}
       <div className="relative" onClick={handleImageOrNameClick}>
-        <div className="absolute top-2 left-2 bg-yellow-400 text-white px-2 py-1 text-sm font-semibold rounded">
+        <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs font-semibold rounded-md animate-bounce flex items-center gap-1">
+          <AiOutlineTag size={16} />
           SALE
         </div>
         <Image
@@ -53,45 +59,47 @@ const CardProduct = ({
         />
       </div>
 
-      <div className="flex space-x-2 mt-2">
+      {/* Color Options */}
+      <div className="flex space-x-3 mt-3">
         {colorEndpoints.length > 0 ? (
           colorEndpoints.map((color) => (
-            <a
+            <button
               key={color.endPoint}
-              href={color.endPoint}
               onClick={(e) => {
-                e.preventDefault(); // Prevent default link behavior for SPA navigation
+                e.preventDefault();
                 handleColorClick(color);
               }}
-            >
-              <div
-                className={`w-6 h-6 rounded-full border-2 ${
-                  selectedColor?.colorCode === color.colorCode
-                    ? "border-black"
-                    : "border-gray-300"
-                }`}
-                style={{ backgroundColor: color.colorCode }}
-              ></div>
-            </a>
+              className={`w-7 h-7 rounded-full border-2 transition ${
+                selectedColor?.colorCode === color.colorCode
+                  ? "border-black scale-110"
+                  : "border-gray-300 hover:scale-105"
+              }`}
+              style={{ backgroundColor: color.colorCode }}
+            ></button>
           ))
         ) : (
           <p className="text-gray-500 text-sm">No colors available</p>
         )}
       </div>
 
-      <div className="mt-4">
+      {/* Product Details */}
+      <div className="mt-4 bg-gradient-to-r from-gray-100 to-gray-200 p-4 rounded-lg shadow-inner">
         <h3
-          className="text-lg font-semibold text-gray-800 cursor-pointer"
+          className="text-lg font-semibold text-gray-800 cursor-pointer hover:text-blue-500 transition mb-1 flex items-center gap-2"
           onClick={handleImageOrNameClick}
         >
-          {name}
+          <AiFillStar className="text-yellow-500" /> {name}
         </h3>
+        <p className="text-sm text-gray-500 mb-2 flex items-center gap-2">
+          <FaFutbol className="text-green-500" />
+          <span className="font-semibold text-gray-700">Thể thao:</span> {sport}
+        </p>
         <div className="flex items-center mt-2">
-          <span className="text-red-600 text-lg font-bold">{price} đ</span>
+          <span className="text-red-600 text-xl font-bold">{price} đ</span>
           <span className="text-gray-400 line-through ml-2 text-sm">
             {(price * 1.7).toFixed(0)} đ
           </span>
-          <span className="ml-2 text-yellow-500 font-semibold text-sm">
+          <span className="ml-2 text-green-500 bg-green-100 px-2 py-1 rounded-md font-semibold text-xs">
             -42%
           </span>
         </div>

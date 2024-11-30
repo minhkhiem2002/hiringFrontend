@@ -4,6 +4,7 @@ import Image from "next/image";
 import Logo from "../../../public/images/Logo.png";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
+import { AiOutlineUser, AiOutlineLogout, AiOutlineBell } from "react-icons/ai";
 import UserIcon from '../../../public/icons/User.svg'
 import LogoutIcon from '../../../public/icons/Logout Rounded.svg'
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -65,6 +66,7 @@ const Navbar = () => {
 
   useEffect(() => {
     fetchCart()
+    getInfo(sessionStorage.getItem('userId'))
   },[])
 
   const toggleMenu = () => {
@@ -264,24 +266,14 @@ const Navbar = () => {
       >
         <MenuItem onClick={thongtinTaikhoan}>
           <div className='w-full flex py-1'>
-            <img
-              src={UserIcon}
-              alt="icon_menu_users"
-              width={20}
-              className="mr-2"
-            />
+          <AiOutlineUser className="mr-2" size={20} />
             Thông tin tài khoản
           </div>
         </MenuItem>
 
         <MenuItem onClick={doimatkhau}>
           <div className='w-full flex py-1'>
-            <img
-              src={UserIcon}
-              alt="icon_menu_password"
-              width={20}
-              className="mr-2"
-            />
+          <AiOutlineBell className="mr-2" size={20} />
             Đổi mật khẩu
           </div>
         </MenuItem>
@@ -291,12 +283,7 @@ const Navbar = () => {
           className='mt-1'
         >
           <div className='w-full flex py-1'>
-            <img
-              src={LogoutIcon}
-              alt="icon_menu_logout"
-              width={20}
-              className="mr-2"
-            />
+          <AiOutlineLogout className="mr-2" size={20} />
             Đăng xuất
           </div>
         </MenuItem>

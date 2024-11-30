@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { User, SignUpUser, ResetPassword, SendMail } from '../interfaces/authInterface';
 import { loginApi, registerApi } from '../api/authApi';
 import { forgetPasswordApi, resetPasswordApi, sendEmailApi } from '../api/authApi';
+import { toast } from 'react-toastify';
 
 type State = {
   user: User | null;
@@ -46,6 +47,7 @@ export const useAuthStore = create<State & Action>(
             return response;
           }
         } catch (error) {
+          toast.error(error.response.data.message, { autoClose: 1500 });
           console.error('Login failed', error);
           set({ isLogin: false });
           return null;
@@ -75,6 +77,7 @@ export const useSignUpStore = create<SUpState & SUpAction>(
             return null;
           }
         } catch (error) {
+          toast.error(error.response.data.message, { autoClose: 1500 });
           console.error('Register failed', error);
           return null;
         }
@@ -112,6 +115,7 @@ export const useForgetPasswordStore = create<ForgetPassword>((set, get) => ({
       }
       return forgetData;
     } catch (err) {
+      toast.error(err.response.data.message, { autoClose: 1500 });
       console.error('failed', err);
       return false;;
     }
@@ -128,6 +132,7 @@ export const useForgetPasswordStore = create<ForgetPassword>((set, get) => ({
       }
       return resetData;
     } catch (err) {
+      toast.error(err.response.data.message, { autoClose: 1500 });
       console.error('failed', err);
       return false;;
     }
@@ -144,6 +149,7 @@ export const useForgetPasswordStore = create<ForgetPassword>((set, get) => ({
       }
       return sendMailData;
     } catch (err) {
+      toast.error(err.response.data.message, { autoClose: 1500 });
       console.error('failed', err);
       return false;;
     }

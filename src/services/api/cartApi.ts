@@ -33,9 +33,13 @@ export const fetchCartApi = async () => {
 }
 
 
-export const clearCartApi = async () => {
+export const clearCartApi = async (item: CartState) => {
   try {
-    const response = await axios.delete(`${API_BASE_URL}/DeleteItem`);
+    const response = await axios.post(`${API_BASE_URL}/DeleteItem?sportProductVariantId=${item.sportProductVariantId}&quantity=${item.quantity}`,{},
+      {
+        withCredentials: true,
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Failed to clear cart:", error);

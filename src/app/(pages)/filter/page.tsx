@@ -265,6 +265,8 @@ const CheckboxReactHookFormMultiple = () => {
                           rating={item.stars} 
                           reviews={item.numberOfReviews} 
                           images={item.pictureUrl}
+                          distance={item.distance}
+                          duration={item.duration}
                         />
                     </Link>
                   ))

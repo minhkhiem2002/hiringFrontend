@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Booking } from '../interfaces/bookingInterface';
+import { Booking, GetBookingByCustomer, GetBookingByCustomerParams } from '../interfaces/bookingInterface';
 
 export const createBookingApi = async (booking: Booking | null) => {
     try {
@@ -10,3 +10,21 @@ export const createBookingApi = async (booking: Booking | null) => {
       throw error;
     }
   }
+
+  export const getBookingByCustomerApi = async (params: GetBookingByCustomerParams) => {
+    try {
+      const response = await axios.get(
+        `https://sportappdemo.azurewebsites.net/api/Booking/GetBookingByCustomer`, {
+          params: {
+            CustomerId: params.CustomerId,
+            PageSize: params.PageSize,
+            PageNumber: params.PageNumber
+          }
+        }
+      );
+      return response.data as GetBookingByCustomer[]; 
+    } catch (error) {
+      console.error("Error get booking by customer:", error);
+      throw error;
+    }
+  };

@@ -41,6 +41,25 @@ export interface UserPasswordUpdate {
   confirmPassword: string;
 }
 
+export interface UserProfileSkill {
+  interest: string;
+  height: string;
+  weight: string;
+  skills: string;
+  address: string;
+  time: string
+}
+
+export interface UserProfileSkillUpdate {
+  customerId: string;
+  interest: string;
+  height: number;
+  weight: number;
+  skills: string;
+  address: string;
+  time: string
+}
+
 export interface StateLogin {
   isLogin: boolean;
 }

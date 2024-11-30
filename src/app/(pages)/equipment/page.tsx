@@ -238,6 +238,7 @@ const Equipment = () => {
                           colorEndpoints={item.colorEndpoints} 
                           price={item.price}
                           name={item.name}
+                          sport={item.sport}
                         />
                     // </Link>
                   ))

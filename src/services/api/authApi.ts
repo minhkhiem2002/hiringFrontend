@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { ResetPassword, SendMail, UserInfo, UserPasswordUpdate } from '../interfaces/authInterface';
+import { ResetPassword, SendMail, UserInfo, UserPasswordUpdate, UserProfileSkillUpdate } from '../interfaces/authInterface';
 
 const API_URL = 'https://sportappdemo.azurewebsites.net/api/User';
+const API_URL_2 = 'https://sportappdemo.azurewebsites.net/api/Customer';
 
 // LOGIN
 export const loginApi = async (email: string, password: string) => {
@@ -89,3 +90,18 @@ export const sendEmailApi = async (sendEmail: SendMail) => {
 };
 
 
+export const updateCustomerSkillApi = async (data: UserProfileSkillUpdate) => {
+  const response = await axios.patch(`${API_URL_2}/UpdateCustomer`, data, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  return response.data;
+};
+
+export const getCustomerSkillDetailApi = async (customerId: string) => {
+  const response = await axios.get(`${API_URL_2}/GetCustomerDetail`, {
+    params: { CustomerId: customerId },
+  });
+  return response.data;
+};

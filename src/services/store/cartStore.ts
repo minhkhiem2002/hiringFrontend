@@ -6,15 +6,22 @@ import { toast } from "react-toastify";
 interface CartActions {
   addToCart: (item: CartItem) => Promise<boolean>;
   fetchCart: () => Promise<boolean>;
-  clearCart: () => Promise<boolean>;
+  clearCart: (item: CartState) => Promise<boolean>;
+  increaseCart: (item: CartState) => Promise<boolean>;
   updateLocalQuantity: (id: string, quantity: number) => void;
+  loading: boolean;
 }
 
 export const useCartStore = create<CartItem & CartState & CartActions>((set, get) => ({
-  itemCart: null,
+  itemCart: "",
   sportProductVariantId: "",
   quantity: 0,
+  loading: false,
   addToCart: async (item: CartState) => {
+    set((state) => ({
+      ...state,
+      loading: true,
+    }))
     try {
       const response = await addToCartApi(item);
       if (response) {
@@ -23,6 +30,7 @@ export const useCartStore = create<CartItem & CartState & CartActions>((set, get
           ...state,
           sportProductVariantId: item.sportProductVariantId,
           quantity: state.quantity + item.quantity,
+          loading: false
         }));
       } else {
         toast.error('Thêm sản phẩm vào giỏ hàng không thành công', {autoClose: 1000})
@@ -48,7 +56,7 @@ export const useCartStore = create<CartItem & CartState & CartActions>((set, get
     try {
       const cart = await fetchCartApi();
       set(() => ({
-        item: cart,
+        itemCart: cart,
         quantity: cart.totalQuantity,
       }));
     } catch (error) {
@@ -56,15 +64,53 @@ export const useCartStore = create<CartItem & CartState & CartActions>((set, get
     }
   },
 
-  clearCart: async () => {
+  clearCart: async (item: CartState) => {
+    set((state) => ({
+      ...state,
+      loading: true,
+    }))
     try {
-      await clearCartApi();
-      set(() => ({
-        sportProductVariantId: "",
-        quantity: 0,
-      }));
+      const response = await clearCartApi(item);
+      if (response) {
+        toast.success('Giảm số lượng thành công', {autoClose: 1000})
+        const cart = await fetchCartApi();
+        set(() => ({
+          itemCart: cart,
+          quantity: cart.totalQuantity,
+          loading: false,
+        }));
+      } else {
+        toast.error('Giảm số lượng không thành công', {autoClose: 1000})
+      }
+      return response
     } catch (error) {
-      console.error("Failed to clear cart:", error);
+      console.error("Failed to add item to cart:", error);
+      toast.error('Giảm số lượng không thành công', {autoClose: 1000})
+    }
+  },
+
+  increaseCart: async (item: CartState) => {
+    set((state) => ({
+      ...state,
+      loading: true,
+    }))
+    try {
+      const response = await addToCartApi(item);
+      if (response) {
+        toast.success('Tăng số lượng thành công', {autoClose: 1000})
+        const cart = await fetchCartApi();
+        set(() => ({
+          itemCart: cart,
+          quantity: cart.totalQuantity,
+          loading: false,
+        }));
+      } else {
+        toast.error('Tăng số lượng không thành công', {autoClose: 1000})
+      }
+      return response
+    } catch (error) {
+      console.error("Failed to add item to cart:", error);
+      toast.error('Tăng số lượng không thành công', {autoClose: 1000})
     }
   },
 }));

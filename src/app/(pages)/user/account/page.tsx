@@ -46,23 +46,13 @@ const formUserInfoSchema = z.object({
 });
 
 const formSkillSchema = z.object({
-  height: z
-    .number()
-    .min(50, { message: "Chiều cao phải lớn hơn 50 cm." })
-    .optional(),
-  weight: z
-    .number()
-    .min(10, { message: "Cân nặng phải lớn hơn 10 kg." })
-    .optional(),
-  skillName: z
-    .string()
-    .min(2, { message: "Tên kỹ năng phải có ít nhất 2 ký tự." }),
-  skillLevel: z
-    .number()
-    .min(1)
-    .max(10, { message: "Cấp độ kỹ năng phải từ 1 đến 10." }),
-  location: z.string().min(2, { message: "Địa điểm không được để trống." }),
-  time: z.string().min(2, { message: "Thời gian không được để trống." })
+  interest: z.string(),
+  height: z.union([z.string(), z.number()]), // Chấp nhận cả string và number
+  weight: z.union([z.string(), z.number()]),
+  skills: z
+    .string(),
+  address: z.string(),
+  time: z.string()
 });
 
 const formUserPasswordSchema = z.object({
@@ -94,11 +84,11 @@ const Information = () => {
   const formSkill = useForm<z.infer<typeof formSkillSchema>>({
     resolver: zodResolver(formSkillSchema),
     defaultValues: {
+      interest: "",
       height: "",
       weight: "",
-      skillName: "",
-      skillLevel: 1,
-      location: "",
+      skills: "",
+      address: "",
       time: ""
     }
   });
@@ -109,6 +99,10 @@ const Information = () => {
     resolver: zodResolver(formUserPasswordSchema),
     defaultValues: { password: "", confirmPassword: "" }
   });
+
+  const getSkill = useUserStore((state) => state.getSkill);
+  const updateSkill = useUserStore((state) => state.updateSkill);
+  const customerDetail = useUserStore((state) => state.customerDetail);
 
   useEffect(() => {
     if (userInfo) {
@@ -121,8 +115,20 @@ const Information = () => {
       formInfo.setValue("avatar", userInfo.avatar || "");
       formInfo.setValue("role", userInfo.role || "");
       setImagePreview(userInfo.avatar || "");
-    }
+    } 
+    getSkill(sessionStorage.getItem('roleId'))
   }, []);
+
+  useEffect(() => {
+    if (customerDetail) {
+      formSkill.setValue("interest", customerDetail.interest || "");
+      formSkill.setValue("height", customerDetail.height || "");
+      formSkill.setValue("weight", customerDetail.weight || "");
+      formSkill.setValue("skills", customerDetail.skills || "");
+      formSkill.setValue("address", customerDetail.address || "");
+      formSkill.setValue("time", customerDetail.time || "");
+    } 
+  }, [getSkill]);
 
   const updateInfo = useUserStore((state) => state.updateInfo);
   const updateAvatar = useUserStore((state) => state.updateAvatar);
@@ -148,8 +154,15 @@ const Information = () => {
 
   async function onSubmitSkill(values: z.infer<typeof formSkillSchema>) {
     try {
-      console.log("Dữ liệu form:", values);
-      toast.success("Lưu thành công!", { autoClose: 1500 });
+      const customerId = sessionStorage.getItem("roleId");
+      const updatedUserSkill = {
+        customerId,
+        ...values
+      };
+      const userInfo = await updateSkill(updatedUserSkill);
+      if (Boolean(userInfo)) {
+        toast.success("Chỉnh sửa thông tin thành công", { autoClose: 1500 });
+      }
     } catch (err) {
       toast.error("Có lỗi xảy ra khi lưu.", { autoClose: 1500 });
       console.error(err);
@@ -239,7 +252,7 @@ const Information = () => {
                                 onChange={handleAvatarChange}
                               />
                               <img
-                                src={imagePreview}
+                                src={userInfo.avatar}
                                 alt="Avatar"
                                 width={200}
                                 height={200}
@@ -443,21 +456,21 @@ const Information = () => {
                               <div className="w-1/2">
                                 <FormField
                                   control={formSkill.control}
-                                  name="skillName"
+                                  name="interest"
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel>Tên kỹ năng:</FormLabel>
+                                      <FormLabel>Tên sở thích:</FormLabel>
                                       <FormControl>
                                         <Input
                                           type="text"
-                                          placeholder="Nhập kỹ năng"
+                                          placeholder="Nhập sở thích"
                                           {...field}
                                           className="border p-2 w-full"
                                         />
                                       </FormControl>
                                       <FormMessage>
                                         {
-                                          formSkill.formState.errors.skillName
+                                          formSkill.formState.errors.interest
                                             ?.message
                                         }
                                       </FormMessage>
@@ -468,21 +481,21 @@ const Information = () => {
                               <div className="w-1/2">
                                 <FormField
                                   control={formSkill.control}
-                                  name="skillLevel"
+                                  name="skills"
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel>Cấp độ kỹ năng:</FormLabel>
+                                      <FormLabel>Tên kỹ năng:</FormLabel>
                                       <FormControl>
                                         <Input
-                                          type="number"
-                                          placeholder="Nhập cấp độ kỹ năng"
+                                          type="text"
+                                          placeholder="Nhập tên kỹ năng"
                                           {...field}
                                           className="border p-2 w-full"
                                         />
                                       </FormControl>
                                       <FormMessage>
                                         {
-                                          formSkill.formState.errors.skillLevel
+                                          formSkill.formState.errors.skills
                                             ?.message
                                         }
                                       </FormMessage>
@@ -495,7 +508,7 @@ const Information = () => {
                               <div className="w-1/2">
                                 <FormField
                                   control={formSkill.control}
-                                  name="location"
+                                  name="address"
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>Địa điểm:</FormLabel>
@@ -509,7 +522,7 @@ const Information = () => {
                                       </FormControl>
                                       <FormMessage>
                                         {
-                                          formSkill.formState.errors.location
+                                          formSkill.formState.errors.address
                                             ?.message
                                         }
                                       </FormMessage>

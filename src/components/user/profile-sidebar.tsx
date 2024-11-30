@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Image from 'next/image';
 import { useUserStore } from "@/services/store/userStore";
+import { useBookingStore } from "@/services/store/bookingStore";
 
 const ProfileSidebar = ({ fullName, avatar }: { fullName: string; avatar: string }) => {
   const pathname = usePathname(); 
@@ -21,6 +22,9 @@ const ProfileSidebar = ({ fullName, avatar }: { fullName: string; avatar: string
   const isActive = (path: string) => pathname === path;
 
   const info = useUserStore((state) => state.userInfo);
+  const { bookings, loading, error, fetchBookingsByCustomer } = useBookingStore(
+    (state) => state
+  );
 
   return (
     <div className="hidden border-r h-[89%] bg-muted/40 md:block">
@@ -39,10 +43,7 @@ const ProfileSidebar = ({ fullName, avatar }: { fullName: string; avatar: string
               <span className="text-md text-[#566976]">{`${info?.firstName} ${info?.lastName}`}</span>
             </div>
           </div>
-          <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
-            <Bell className="h-4 w-4" />
-            <span className="sr-only">Toggle notifications</span>
-          </Button>
+
         </div>
         <div className="flex-1">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
@@ -73,7 +74,7 @@ const ProfileSidebar = ({ fullName, avatar }: { fullName: string; avatar: string
               <ShoppingCart className="h-4 w-4" />
               Đơn đặt hàng
               <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                6
+                {bookings?.count || 0}
               </Badge>
             </Link>
             <Link
