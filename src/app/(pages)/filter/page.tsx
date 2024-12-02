@@ -45,11 +45,11 @@ const locations = [
 ];
 
 const ratings = [
-  { id: "5star", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /></div> },
-  { id: "4star", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><p>trở lên</p></div> },
-  { id: "3star", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><p>trở lên</p></div> },
-  { id: "2star", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><p>trở lên</p></div> },
-  { id: "1star", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><p>trở lên</p></div> },
+  { id: "5", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /></div> },
+  { id: "4", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><p>trở lên</p></div> },
+  { id: "3", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><p>trở lên</p></div> },
+  { id: "2", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><p>trở lên</p></div> },
+  { id: "1", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><p>trở lên</p></div> },
 ];
 
 const itemsPerPage = 9;
@@ -61,6 +61,7 @@ const FormSchema = z.object({
   ratings: z.array(z.string()).optional(),
   minPrice: z.number().optional(),
   maxPrice: z.number().optional(),
+  search: z.string().optional(),
 });
 
 const CheckboxReactHookFormMultiple = () => {
@@ -79,7 +80,7 @@ const CheckboxReactHookFormMultiple = () => {
       ratings: [],
       minPrice: 0,
       maxPrice: 1000000,
-
+      search: null,
     },
   });
 
@@ -106,7 +107,7 @@ const CheckboxReactHookFormMultiple = () => {
 
   // Hàm gọi API
   const fetchFilteredData = async () => {
-    const { items, locations, ratings, minPrice, maxPrice } = form.getValues();
+    const { items, search, locations, ratings, minPrice, maxPrice } = form.getValues();
     setIsLoading(true);
     try {
       const response = await axios.get(
@@ -114,7 +115,7 @@ const CheckboxReactHookFormMultiple = () => {
           params: {
             PageSize: itemsPerPage,
             PageNumber: currentPage,
-            Search: null,
+            Search: search || null,
             Sort: "rating",
             Sports: items ? items.join(",") : null,
             StarRatings: ratings ? ratings.join(",") : null,
@@ -145,6 +146,7 @@ const CheckboxReactHookFormMultiple = () => {
   }, [
     form.watch("items"),
     form.watch("locations"),
+    form.watch("search"),
     form.watch("ratings"),
     form.watch("minPrice"),
     form.watch("maxPrice"),
@@ -170,6 +172,17 @@ const CheckboxReactHookFormMultiple = () => {
             <FormLabel className="text-lg text-[#21717A]">Filter By</FormLabel>
             <div className="h-px my-4 bg-gray-300 shadow"></div>
             <form onSubmit={form.handleSubmit(fetchFilteredData)} className="space-y-8">
+            <FormItem>
+              <div className="mb-4">
+                <FormLabel className="text-sm text-[#566976]">Search</FormLabel>
+              </div>
+              <Input
+                id="search"
+                placeholder="Search..."
+                onChange={(e) => form.setValue("search", e.target.value)}
+                className="h-8"
+              />
+            </FormItem>
               <FormField
                 control={form.control}
                 name="items"
@@ -229,6 +242,37 @@ const CheckboxReactHookFormMultiple = () => {
                   />
                 </div>
               </FormItem>
+              <FormField
+    control={form.control}
+    name="ratings"
+    render={({ field }) => (
+      <FormItem>
+        <div className="mb-4">
+          <FormLabel className="text-sm text-[#566976]">Star Ratings</FormLabel>
+        </div>
+        {ratings.map((rating) => (
+          <FormItem key={rating.id} className="flex flex-row items-center gap-3">
+            <FormControl>
+              <Checkbox
+                checked={field.value?.includes(rating.id)}
+                onCheckedChange={(checked: boolean) => {
+                  if (checked) {
+                    field.onChange([...field.value, rating.id]);
+                  } else {
+                    field.onChange(field.value?.filter((value) => value !== rating.id));
+                  }
+                }}
+                className="data-[state=checked]:bg-[#129AA6]"
+              />
+            </FormControl>
+            <FormLabel className="font-normal text-[#7D92A1] text-sm">
+              {rating.label}
+            </FormLabel>
+          </FormItem>
+        ))}
+      </FormItem>
+    )}
+  />
             </form>
           </Form>
         </div>

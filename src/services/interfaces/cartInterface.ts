@@ -12,3 +12,16 @@ export interface CartItem {
     quantity: number;    
   }
   
+
+export interface ShippingAddress {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  addressLine: string;
+}
+
+export interface Order {
+  shippingAddress: ShippingAddress;
+  buyerId: string;
+}

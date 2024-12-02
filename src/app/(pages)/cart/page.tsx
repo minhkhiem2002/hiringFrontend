@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation';
 import jsCookie from 'js-cookie';
 
 const Cart = () => {
-  const { loading, itemCart, fetchCart, clearCart, increaseCart } = useCartStore();
+  const { loading, itemCart, fetchCart, clearCart, increaseCart, createOrder } = useCartStore();
   const router = useRouter();
 
   const [shippingInfo, setShippingInfo] = useState({
@@ -29,16 +29,6 @@ const Cart = () => {
     addressLine: '',
   });
 
-  const [buyerId, setBuyerId] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchCart();
-    const buyerIdFromCookie = jsCookie.get('buyerId');
-    setBuyerId(buyerIdFromCookie || null);
-  }, []);
-
-  console.log('Buyid', buyerId)
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setShippingInfo((prev) => ({
@@ -47,9 +37,21 @@ const Cart = () => {
     }));
   };
 
-  const handlePayment = () => {
-    console.log('Shipping Info:', shippingInfo);
-    console.log('Buyer ID:', buyerId);
+  const handlePayment = async () => {
+    try {
+    const dataShipping = {
+      shippingAddress: shippingInfo,
+      buyerId: itemCart.buyerId,
+    }
+   const response = await createOrder(dataShipping)
+   if (response) {
+    window.location.href = response;
+} else {
+    console.error("Payment URL not found in the response.");
+}
+  } catch (error) {
+    console.error("Failed to create order:", error);
+  }
   };
 
   const decreaseCount = async (id: string) => {

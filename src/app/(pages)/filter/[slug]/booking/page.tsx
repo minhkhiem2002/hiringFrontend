@@ -402,6 +402,8 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
             {/* Xác nhận */}
             {activeStep === 2 && (
               <Grid container columnSpacing={1}>
+                              <Grid item xs = {3}>
+                              </Grid>
                 <Grid item xs = {6}>
               <div>
                 <div className = "flex justify-center items-center">
@@ -455,8 +457,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
               </div>
               </div>
               </Grid>
-              <Grid item xs = {6}>
-                <p>aaa</p>
+              <Grid item xs = {3}>
                 </Grid>
               </Grid>
             )}

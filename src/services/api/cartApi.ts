@@ -1,7 +1,8 @@
 import axios from "axios";
-import { CartState } from "../interfaces/cartInterface";
+import { CartState, Order } from "../interfaces/cartInterface";
 
 const API_BASE_URL = "https://sportappdemo.azurewebsites.net/api/Cart";
+const API_BASE_URL_2 = "https://sportappdemo.azurewebsites.net/api/Order";
 
 export const addToCartApi = async (item: CartState) => {
   try {
@@ -46,3 +47,14 @@ export const clearCartApi = async (item: CartState) => {
     throw error;
   }
 };
+
+export const createOrderApi = async (order: Order) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL_2}/CreateOrder`,order);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to create order", error);
+    throw error;
+  }
+};
+

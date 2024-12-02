@@ -52,6 +52,7 @@ const FormSchema = z.object({
   ratings: z.array(z.string()).optional(),
   minPrice: z.number().optional(),
   maxPrice: z.number().optional(),
+  orderBy: z.string().optional(), 
 });
 
 const Equipment = () => {
@@ -78,7 +79,7 @@ const Equipment = () => {
 
   // Hàm gọi API
   const fetchFilteredData = async () => {
-    const { items, ratings, minPrice, maxPrice } = form.getValues();
+    const { items,search, ratings, minPrice, maxPrice, orderBy  } = form.getValues();
     setIsLoading(true);
     try {
       const response = await axios.get(
@@ -86,10 +87,10 @@ const Equipment = () => {
           params: {
             PageSize: itemsPerPage,
             PageNumber: currentPage,
-            Search: null,
+            Search: search || null,
             Sort: "rating",
             Sports: items ? items.join(",") : null,
-            OrderBy: null,
+            OrderBy: orderBy || null,
             Colors: null,
             Sizes: null
           },
@@ -114,9 +115,11 @@ const Equipment = () => {
     fetchFilteredData();
   }, [
     form.watch("items"),
+    form.watch("search"),
     form.watch("ratings"),
     form.watch("minPrice"),
     form.watch("maxPrice"),
+    form.watch("orderBy"),
     currentPage,
   ]);
 
@@ -204,6 +207,25 @@ const Equipment = () => {
                   />
                 </div>
               </FormItem>
+              <FormItem>
+  <div className="mb-4">
+    <FormLabel className="text-sm text-[#566976]">Sắp xếp</FormLabel>
+  </div>
+  <FormControl>
+    <select
+      id="OrderBy"
+      onChange={(e) => form.setValue("orderBy", e.target.value)}
+      className="h-8 w-full border rounded-md px-2 text-sm text-[#566976]"
+    >
+      <option value="">Mặc định</option>
+      <option value="A-Z">Tên: A-Z</option>
+      <option value="Z-A">Tên: Z-A</option>
+      <option value="$-$$$">Giá: Thấp đến cao</option>
+      <option value="$$$-$">Giá: Cao đến thấp</option>
+    </select>
+  </FormControl>
+</FormItem>
+
             </form>
           </Form>
         </div>
@@ -232,7 +254,7 @@ const Equipment = () => {
               <div className="grid grid-cols-3 gap-4">
                 {filteredItems && filteredItems.length > 0 ? (
                   filteredItems.map((item) => (
-                    // <Link href={`/equipment/${item.colorEndpoints[0].endPoint}`} key={item.id}>
+                    // <Link href={/equipment/${item.colorEndpoints[0].endPoint}} key={item.id}>
                       <CardEq 
                           pictureUrl={item.pictureUrl} 
                           colorEndpoints={item.colorEndpoints} 

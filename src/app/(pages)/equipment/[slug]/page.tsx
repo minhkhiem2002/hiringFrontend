@@ -73,8 +73,8 @@ const Detail = ({ params }: { params: { slug: string } }) => {
         <div className="w-[90%] mx-auto mt-4">
           <Breadcrumbs className="text-green-600">
             <a href="/">Trang chủ</a>
-            <a href="/">Sản phẩm</a>
-            <span className="text-gray-700">{equipment?.name || "Sản phẩm"}</span>
+            <a href="/equipment">Sản phẩm</a>
+            <span className = 'text-[#129AA6]'>{equipment?.name || "Sản phẩm"}</span>
           </Breadcrumbs>
 
           {/* Main Product Section */}

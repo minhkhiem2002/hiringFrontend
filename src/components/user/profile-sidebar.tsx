@@ -86,15 +86,6 @@ const ProfileSidebar = ({ fullName, avatar }: { fullName: string; avatar: string
               <Package className="h-4 w-4" />
               Quản lý đội
             </Link>
-            <Link
-              href="/user/promotions"
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                isActive("/user/promotions") ? "bg-muted text-muted-foreground" : "text-muted-foreground"
-              }`}
-            >
-              <Menu className="h-4 w-4" />
-              Mã khuyến mãi
-            </Link>
           </nav>
         </div>
       </div>

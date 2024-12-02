@@ -28,6 +28,14 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import {
+  Bell,
+  BellRing,
+  Package,
+  Package2,
+  ShoppingCart,
+  Users,
+} from "lucide-react";
 import { useAuthStore } from "@/services/store/authStore";
 import { useNotificationsStore } from "@/services/store/notificationStore";
 import { NotificationParams } from "@/services/api/notificationApi";
@@ -61,8 +69,6 @@ const Navbar = () => {
   const fetchCart = useCartStore(state => state.fetchCart)
   const { quantity } = useCartStore();
   const notifications = useNotificationsStore((state) => state.notifications);
-
-  console.log("Total Amount:", quantity);
 
   useEffect(() => {
     fetchCart()
@@ -159,7 +165,7 @@ const Navbar = () => {
           <Link href="/filter" className="mx-3 mt-2">Thông tin sân</Link>
           <Link href="/equipment" className="mx-3 mt-2">Thiết bị</Link>
           <Link href="/team" className="mx-3 mt-2">Team</Link>
-          <Link href="/docs" className="mx-3 mt-2">Tin tức</Link>
+          <Link href="/news" className="mx-3 mt-2">Tin tức</Link>
           <Link href="/faq" className="mx-3 mt-2">FAQ</Link>
           <Link href="/contact" className="mx-3 mt-2">Liên hệ</Link>
         </Grid>
@@ -265,16 +271,28 @@ const Navbar = () => {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <MenuItem onClick={thongtinTaikhoan}>
-          <div className='w-full flex py-1'>
-          <AiOutlineUser className="mr-2" size={20} />
+          <div className='flex items-center gap-3 rounded-lg px-3 py-2'>
+          <Users className="h-4 w-4" />
             Thông tin tài khoản
           </div>
         </MenuItem>
 
-        <MenuItem onClick={doimatkhau}>
-          <div className='w-full flex py-1'>
-          <AiOutlineBell className="mr-2" size={20} />
-            Đổi mật khẩu
+        <MenuItem onClick={() => router.push("/user/notification", { scroll: false })}>
+        <div className='flex items-center gap-3 rounded-lg px-3 py-2'>
+          <BellRing className="h-4 w-4" />
+            Thông báo
+          </div>
+        </MenuItem>
+        <MenuItem onClick={() => router.push("/user/order", { scroll: false })}>
+        <div className='flex items-center gap-3 rounded-lg px-3 py-2'>
+          <ShoppingCart className="h-4 w-4" />
+            Đơn đặt hàng
+          </div>
+        </MenuItem>
+        <MenuItem onClick={() => router.push("/user/team", { scroll: false })}>
+        <div className='flex items-center gap-3 rounded-lg px-3 py-2'>
+          <Package className="h-4 w-4" />
+            Quản lý đội
           </div>
         </MenuItem>
         <Divider />
@@ -282,7 +300,7 @@ const Navbar = () => {
           onClick={handleLogout}
           className='mt-1'
         >
-          <div className='w-full flex py-1'>
+          <div className='flex items-center gap-3 rounded-lg px-3 py-2'>
           <AiOutlineLogout className="mr-2" size={20} />
             Đăng xuất
           </div>

@@ -1,20 +1,20 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import jsCookie from 'js-cookie'; // Sử dụng js-cookie để lấy cookie từ client
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button"; // Đảm bảo bạn có Button từ thư viện của bạn
-import confetti from "canvas-confetti"; // Hiệu ứng confetti khi đặt hàng thành công
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import confetti from "canvas-confetti";
 import Navbar from "@/components/user/main-nav";
 
 const OrderSuccessPage: React.FC = () => {
   const router = useRouter();
-  const [paymentStatus, setPaymentStatus] = useState<string | null>(null); // Lưu trữ trạng thái thanh toán
+  const searchParams = useSearchParams();
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    // Lấy giá trị cookie 'PaymentStatus' từ client
-    const status = jsCookie.get('PaymentStatus');
-    setPaymentStatus(status || null); // Nếu không có thì mặc định là null
+    // Lấy giá trị `status` từ URL
+    const status = searchParams.get("status");
+    setPaymentStatus(status || null);
 
     if (status === "success") {
       // Hiệu ứng confetti khi thành công
@@ -24,10 +24,9 @@ const OrderSuccessPage: React.FC = () => {
         origin: { y: 0.6 },
       });
     }
-  }, []);
+  }, [searchParams]);
 
   const renderContent = () => {
-    // Render theo trạng thái thanh toán
     if (paymentStatus === "success") {
       return (
         <div className="w-full max-w-md p-6 rounded-lg shadow-lg bg-green-100 text-center">

@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { CartItem, CartState } from "../interfaces/cartInterface";
-import { addToCartApi, fetchCartApi, clearCartApi } from "../api/cartApi";
+import { CartItem, CartState, Order } from "../interfaces/cartInterface";
+import { addToCartApi, fetchCartApi, clearCartApi, createOrderApi } from "../api/cartApi";
 import { toast } from "react-toastify";
 
 interface CartActions {
@@ -8,6 +8,7 @@ interface CartActions {
   fetchCart: () => Promise<boolean>;
   clearCart: (item: CartState) => Promise<boolean>;
   increaseCart: (item: CartState) => Promise<boolean>;
+  createOrder: (order: Order) => Promise<boolean>;
   updateLocalQuantity: (id: string, quantity: number) => void;
   loading: boolean;
 }
@@ -17,6 +18,7 @@ export const useCartStore = create<CartItem & CartState & CartActions>((set, get
   sportProductVariantId: "",
   quantity: 0,
   loading: false,
+  orderData: "",
   addToCart: async (item: CartState) => {
     set((state) => ({
       ...state,
@@ -111,6 +113,17 @@ export const useCartStore = create<CartItem & CartState & CartActions>((set, get
     } catch (error) {
       console.error("Failed to add item to cart:", error);
       toast.error('Tăng số lượng không thành công', {autoClose: 1000})
+    }
+  },
+
+  createOrder: async (order: Order) => { // Hàm mới
+    set({ loading: true });
+    try {
+      const bookingsData = await createOrderApi(order);
+      set({ orderData: bookingsData, loading: false });
+      return bookingsData;
+    } catch (error) {
+      set({ error: 'Failed to fetch bookings for customer', loading: false });
     }
   },
 }));
