@@ -1,3 +1,4 @@
+'use client'
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // Sử dụng usePathname thay cho useRouter
 import {
@@ -15,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import Image from 'next/image';
 import { useUserStore } from "@/services/store/userStore";
 import { useBookingStore } from "@/services/store/bookingStore";
+import { useEffect } from "react";
 
 const ProfileSidebar = ({ fullName, avatar }: { fullName: string; avatar: string }) => {
   const pathname = usePathname(); 
@@ -22,9 +24,44 @@ const ProfileSidebar = ({ fullName, avatar }: { fullName: string; avatar: string
   const isActive = (path: string) => pathname === path;
 
   const info = useUserStore((state) => state.userInfo);
-  const { bookings, loading, error, fetchBookingsByCustomer } = useBookingStore(
+  const getInfo = useUserStore((state) => state.getInfo);
+  const { bookings, orders, loading, error, fetchBookingsByCustomer, fetchOrdersByCustomer } = useBookingStore(
     (state) => state
   );
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const userId = sessionStorage.getItem("userId");
+  //       const roleId = sessionStorage.getItem("roleId");
+  //       const userInfo = await getInfo(userId);
+  //       if (userInfo) {
+  //         const params = {
+  //           Email: userInfo.email,
+  //           Status: null,
+  //           PageSize: 5, 
+  //           PageNumber: 1,
+  //         };
+  //         await fetchOrdersByCustomer(params)
+  //       }
+
+  //       if (roleId) {
+  //         const params = {
+  //           CustomerId: roleId,
+  //           PageSize: 5, 
+  //           PageNumber: 1,
+  //         };
+  //         await fetchBookingsByCustomer(params);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user information:", error);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
+
+
 
   return (
     <div className="hidden border-r h-[89%] bg-muted/40 md:block">
@@ -66,15 +103,27 @@ const ProfileSidebar = ({ fullName, avatar }: { fullName: string; avatar: string
               Thông báo
             </Link>
             <Link
+              href="/user/booking"
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
+                isActive("/user/booking") ? "bg-muted text-muted-foreground" : "text-muted-foreground"
+              }`}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              Đơn đặt sân
+              <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                {bookings?.count || 0}
+              </Badge>
+            </Link>
+            <Link
               href="/user/order"
               className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                isActive("/user/orders") ? "bg-muted text-muted-foreground" : "text-muted-foreground"
+                isActive("/user/order") ? "bg-muted text-muted-foreground" : "text-muted-foreground"
               }`}
             >
               <ShoppingCart className="h-4 w-4" />
               Đơn đặt hàng
               <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                {bookings?.count || 0}
+                {orders?.count || 0}
               </Badge>
             </Link>
             <Link

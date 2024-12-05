@@ -38,6 +38,7 @@ export const useAuthStore = create<State & Action>(
             sessionStorage.setItem('token', token);
             sessionStorage.setItem('userId', id);
             sessionStorage.setItem('roleId',userRoleId)
+            sessionStorage.setItem('email',email)
 
             set({
               user: { id, userRoleId, email, token, role },

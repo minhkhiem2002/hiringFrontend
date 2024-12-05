@@ -58,10 +58,16 @@ export const useCartStore = create<CartItem & CartState & CartActions>((set, get
     try {
       const cart = await fetchCartApi();
       set(() => ({
-        itemCart: cart,
-        quantity: cart.totalQuantity,
+        itemCart: cart || null,
+        quantity: cart.totalQuantity || 0,
+        loading: false,
       }));
     } catch (error) {
+      set(() => ({
+        itemCart: "",
+        quantity: 0,
+        loading: false,
+      }));
       console.error("Failed to fetch cart details:", error);
     }
   },
@@ -120,7 +126,7 @@ export const useCartStore = create<CartItem & CartState & CartActions>((set, get
     set({ loading: true });
     try {
       const bookingsData = await createOrderApi(order);
-      set({ orderData: bookingsData, loading: false });
+      console.log('Data booking', bookingsData)
       return bookingsData;
     } catch (error) {
       set({ error: 'Failed to fetch bookings for customer', loading: false });

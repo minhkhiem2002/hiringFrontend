@@ -6,11 +6,18 @@ const API_BASE_URL_2 = "https://sportappdemo.azurewebsites.net/api/Order";
 
 export const addToCartApi = async (item: CartState) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/AddItem?sportProductVariantId=${item.sportProductVariantId}&quantity=${item.quantity}`, {},
+    const token = sessionStorage.getItem("token");
+
+    const response = await axios.post(
+      `${API_BASE_URL}/AddItem?sportProductVariantId=${item.sportProductVariantId}&quantity=${item.quantity}`,
+      {},
       {
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
         withCredentials: true,
       }
-     );
+    );
     return response.data;
   } catch (error) {
     console.error("Failed to add to cart:", error);
@@ -20,9 +27,13 @@ export const addToCartApi = async (item: CartState) => {
 
 export const fetchCartApi = async () => {
   try {
+    const token = sessionStorage.getItem("token");
     const response = await axios.get(
       `${API_BASE_URL}/GetCartDetail`,
       {
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
         withCredentials: true,
       }
     );
@@ -36,8 +47,12 @@ export const fetchCartApi = async () => {
 
 export const clearCartApi = async (item: CartState) => {
   try {
+    const token = sessionStorage.getItem("token");
     const response = await axios.post(`${API_BASE_URL}/DeleteItem?sportProductVariantId=${item.sportProductVariantId}&quantity=${item.quantity}`,{},
       {
+        headers: {
+          Authorization: `Bearer ${token}`, // Thêm token vào header
+        },
         withCredentials: true,
       }
     );

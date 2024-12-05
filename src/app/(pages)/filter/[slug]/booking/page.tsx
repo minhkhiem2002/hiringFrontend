@@ -48,7 +48,6 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
   const field = useFieldStore(state => state.field)
   const fetchFieldData = useFieldStore(state => state.fetchFieldData)
 
-  console.log('Field', field)
   const fetchBookingData = useBookingStore(state => state.fetchBookingData)
 
   const [fieldBooking, setFieldBooking] = useState<DetailData | null>(field)
@@ -164,8 +163,6 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
     setSelectedDate(date);
   };
 
-  console.log(selectedTimes)
-
   const handleTimeClick = (id: string, status: boolean) => {
     if (status) return;
     setSelectedTimes((prev) => {
@@ -190,10 +187,27 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
     }
   };
 
+  const [selectedVoucher, setSelectedVoucher] = useState(null); 
+  const [discount, setDiscount] = useState(0);
+
+  const handleVoucherChange = (voucher: { percentSale: number; maxSale: number }) => {
+    setSelectedVoucher(voucher);
+  
+    if (voucher) {
+      console.log('Voucher select',voucher)
+      const discount = Math.min((totalPrice * voucher.percentSale) / 100, voucher.maxSale);
+      console.log('Discount',discount)
+      setDiscount(discount); 
+    } else {
+      setDiscount(0); 
+    }
+  };
+  
+
   const handleBooking = async () => {
     const dataBooking: Booking = {
       name: 'Booking',
-      totalPrice: totalPrice,
+      totalPrice: totalPrice - discount,
       sportFieldId: fieldBooking? fieldBooking.id : '',
       customerId: sessionStorage.getItem('roleId'),
       note: 'Note',
@@ -202,19 +216,23 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
     }
     const response = await fetchBookingData(dataBooking)
     if (response) {
-      // Redirect to VNPay sandbox or production URL based on environment
       window.location.href = response;
-  } else {
-      // Handle cases where paymentUrl is missing or API call fails
-      console.error("Payment URL not found in the response.");
-      // You could show a user-friendly error message here
-  }
+    } else {
+        console.error("Payment URL not found in the response.");
+    }
   }
 
   const handleUserInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUserInfo((prev) => ({ ...prev, [name]: value }));
   };
+
+  const calculateFinalPrice = (totalPrice, discountAmount) => {
+    const finalPrice = totalPrice - discountAmount;
+    return finalPrice;
+  };
+
+  const [showDropdown, setShowDropdown] = useState(false)
 
   return (
     <div className='w-full bg-slate-100 h-fit'>
@@ -392,7 +410,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                 <Divider />
                 <p className="font-bold mt-2 flex justify-between">
                   <span>Tổng:</span>
-                  <span>${totalPrice}</span>
+                  <span>{calculateFinalPrice(totalPrice, discount)} đ</span>
                 </p>
               </Box>
               </Grid>
@@ -402,8 +420,6 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
             {/* Xác nhận */}
             {activeStep === 2 && (
               <Grid container columnSpacing={1}>
-                              <Grid item xs = {3}>
-                              </Grid>
                 <Grid item xs = {6}>
               <div>
                 <div className = "flex justify-center items-center">
@@ -451,13 +467,74 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                 <Divider />
                 <p className="font-bold mt-2 flex justify-between">
                   <span>Tổng:</span>
-                  <span>${totalPrice}</span>
+                  <span>${totalPrice - discount}</span>
                 </p>
               </Box>
               </div>
               </div>
               </Grid>
-              <Grid item xs = {3}>
+              <Grid item xs = {6}>
+              <div>
+      <h4 className="font-bold">Chọn Voucher</h4>
+      <div className="relative">
+        <button
+          className="p-2 border w-full text-left"
+          onClick={() => setShowDropdown(!showDropdown)}
+        >
+          {selectedVoucher ? selectedVoucher.name : '-- Không áp dụng --'}
+        </button>
+
+        {showDropdown && (
+          <div className="absolute top-full left-0 w-full bg-white border mt-1 z-10 max-h-[500px] overflow-y-auto">
+            <div
+              className="p-2 cursor-pointer hover:bg-gray-200"
+              onClick={() => {
+                setSelectedVoucher(null);
+                handleVoucherChange(null); 
+                setShowDropdown(false); 
+              }}
+            >
+              -- Không áp dụng --
+            </div>
+
+            {fieldBooking?.vouchers.map((voucher) => (
+              <div
+                key={voucher.voucherId}
+                className={`p-2 cursor-pointer hover:bg-gray-200 ${selectedVoucher?.voucherId === voucher.voucherId ? 'bg-gray-200' : ''}`}
+                onClick={() => {
+                  setSelectedVoucher(voucher);
+                  handleVoucherChange(voucher); 
+                  setShowDropdown(false); 
+                }}
+              >
+                <h3 className="text-sm font-bold text-red-500 mb-1">
+                  Giảm {voucher.percentSale}% ({voucher.maxSale.toLocaleString()}₫ tối đa)
+                </h3>
+                <p className="text-xs text-gray-700 mb-1">
+                  Đơn Tối Thiểu: {voucher.minPrice.toLocaleString()}đ
+                </p>
+                <p className="text-xs text-gray-700 mb-1">
+                  Giảm tối đa: {voucher.maxSale.toLocaleString()}đ
+                </p>
+                <p className="text-xs text-gray-700 mb-1">Số lượng: {voucher.quantity}</p>
+                <div className="flex items-center justify-between text-xs text-gray-600 mt-2">
+                  <span>Sản phẩm nhất định</span>
+                  <span>HSD: {new Date(voucher.endTime).toLocaleDateString()}</span>
+                </div>
+                <div className="mt-2 w-full h-1 bg-gray-200 rounded-full">
+                  <div
+                    className="h-1 bg-orange-500 rounded-full"
+                    style={{ width: `${(voucher.quantity / 100) * 100}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Đã dùng 100%</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+
                 </Grid>
               </Grid>
             )}

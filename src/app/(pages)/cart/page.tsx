@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Breadcrumbs, Grid, Button, Typography, Box, IconButton, Paper, ButtonGroup, Chip, Divider, TextField } from '@mui/material';
+import { Breadcrumbs, Grid, Button, Typography, Box, IconButton, Paper, ButtonGroup, Chip, Divider, TextField, RadioGroup, Radio, FormControlLabel } from '@mui/material';
 import PaletteIcon from '@mui/icons-material/Palette';
 import FormatSizeIcon from '@mui/icons-material/FormatSize';
 import ShoppingCartOutlined from '@mui/icons-material/ShoppingCartOutlined';
@@ -16,11 +16,13 @@ import { CartState } from "@/services/interfaces/cartInterface";
 import Loading from "@/components/user/loading";
 import { useRouter } from 'next/navigation';
 import jsCookie from 'js-cookie';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Cart = () => {
   const { loading, itemCart, fetchCart, clearCart, increaseCart, createOrder } = useCartStore();
   const router = useRouter();
-
+  const [isPaymentOnline, setIsPaymentOnline] = useState(true);
   const [shippingInfo, setShippingInfo] = useState({
     firstName: '',
     lastName: '',
@@ -42,13 +44,23 @@ const Cart = () => {
     const dataShipping = {
       shippingAddress: shippingInfo,
       buyerId: itemCart.buyerId,
+      isPaymentOnline: isPaymentOnline,
     }
    const response = await createOrder(dataShipping)
-   if (response) {
-    window.location.href = response;
-} else {
-    console.error("Payment URL not found in the response.");
-}
+   console.log('Response', response)
+   if (response ) {
+    if (isPaymentOnline) {
+      console.log('Online')
+      window.location.href = response;
+    } else {
+      toast.success('Đặt hàng thành công', {autoClose: 1000})
+      setTimeout(async () => {
+        router.push("/");
+      }, 1000);
+    }
+  } else {
+      console.error("Payment URL not found in the response.");
+  }
   } catch (error) {
     console.error("Failed to create order:", error);
   }
@@ -168,7 +180,7 @@ const Cart = () => {
                           </Box>
                         </Grid>
                         <Grid item xs={2} md={2} className="flex flex-col justify-center items-center">
-                          <Typography variant="h6" color="red" className="font-semibold text-lg">{itemCart?.totalPrice} đ</Typography>
+                          <Typography variant="h6" color="red" className="font-semibold text-lg">{itemCart.totalPrice || 0} đ</Typography>
                         </Grid>
                         <Grid item xs={1} md={1} className="flex justify-end">
                           <IconButton onClick={() => handleRemove(item.id, item.quantity)} className="text-red-600 hover:bg-red-50 transition duration-200">
@@ -276,7 +288,7 @@ const Cart = () => {
                   <Typography variant="h6" color="textSecondary">Thanh toán</Typography>
                   <Box display="flex" justifyContent="space-between" mt={2}>
                     <Typography variant="body1" color="textSecondary">Tạm tính</Typography>
-                    <Typography variant="body1" color="textPrimary">{itemCart.totalPrice} đ</Typography>
+                    <Typography variant="body1" color="textPrimary">{itemCart? itemCart.totalPrice : 0} đ</Typography>
                   </Box>
                   <Box display="flex" justifyContent="space-between" mt={2}>
                     <Typography variant="body1" color="textSecondary">Giảm giá</Typography>
@@ -284,9 +296,18 @@ const Cart = () => {
                   </Box>
                   <Box display="flex" justifyContent="space-between" mt={2}>
                     <Typography variant="h6" color="textSecondary">Tổng cộng</Typography>
-                    <Typography variant="h6" color="textPrimary">{itemCart.totalPrice} đ</Typography>
+                    <Typography variant="h6" color="red">{itemCart? itemCart.totalPrice : 0} đ</Typography>
                   </Box>
-                  <Divider className = 'py-1'/>
+                  <Divider sx = {{marginTop: '16px', marginBottom: '16px'}}/>
+                  <Typography variant="h6" color="textPrimary" className="font-bold mb-2">Hình thức thanh toán</Typography>
+                  <RadioGroup
+                    value={isPaymentOnline}
+                    onChange={(e) => setIsPaymentOnline(e.target.value === 'true')}
+                  >
+                    <FormControlLabel value={true} control={<Radio />} label="Thanh toán online" />
+                    <FormControlLabel value={false} control={<Radio />} label="Thanh toán khi nhận hàng (COD)" />
+                  </RadioGroup>
+                  <Divider sx = {{marginTop: '16px', marginBottom: '16px'}}/>
                   <Button variant="contained" color="primary" fullWidth className="mt-4" onClick={handlePayment}>
                     <ShoppingCartOutlined /> Thanh toán
                   </Button>
@@ -297,6 +318,7 @@ const Cart = () => {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

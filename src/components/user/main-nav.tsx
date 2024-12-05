@@ -40,8 +40,10 @@ import { useAuthStore } from "@/services/store/authStore";
 import { useNotificationsStore } from "@/services/store/notificationStore";
 import { NotificationParams } from "@/services/api/notificationApi";
 import { useCartStore } from "@/services/store/cartStore";
+import axios from "axios";
 
-function formatDate(dateString:any) {
+// Hàm format ngày giờ
+function formatDate(dateString: any) {
   const date = new Date(dateString);
   const day = date.getDate().toString().padStart(2, '0');
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -52,28 +54,70 @@ function formatDate(dateString:any) {
   return `${hours}:${minutes} ${day}/${month}/${year}`;
 }
 
+// Component Navbar
 const Navbar = () => {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); 
+  const [suggestions, setSuggestions] = useState([]); 
+  const [loading, setLoading] = useState(false); 
 
   const isLogin = useAuthStore((state) => state.isLogin);
   const info = useUserStore((state) => state.userInfo);
-  const loading = useUserStore((state) => state.loading);
+  const loadingUser = useUserStore((state) => state.loading);
   const putSuccess = useUserStore((state) => state.putSuccess);
   const setState = useUserStore((state) => state.setState);
   const setInfo = useUserStore((state) => state.setInfo);
   const getInfo = useUserStore((state) => state.getInfo);
   const notificationCount = useNotificationsStore((state) => state.notificationCount);
   const fetchNotificationCount = useNotificationsStore(state => state.fetchNotificationCount);
-  const  fetchNotifications = useNotificationsStore(state => state.fetchNotifications);
-  const fetchCart = useCartStore(state => state.fetchCart)
+  const fetchNotifications = useNotificationsStore(state => state.fetchNotifications);
+  const fetchCart = useCartStore(state => state.fetchCart);
   const { quantity } = useCartStore();
   const notifications = useNotificationsStore((state) => state.notifications);
 
   useEffect(() => {
-    fetchCart()
-    getInfo(sessionStorage.getItem('userId'))
-  },[])
+    fetchCart();
+    getInfo(sessionStorage.getItem('userId'));
+  }, []);
+
+  const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
+  const [error, setError] = useState(null);
+
+  const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value;
+    setSearchTerm(query);
+
+    if (query.trim() === "") {
+      setSuggestions([]);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await axios.get(
+        `https://sportappdemo.azurewebsites.net/api/SportField/GetSportFields`,
+        {
+          params: {
+            PageSize: 5, // Số lượng kết quả mỗi trang
+            PageNumber: 1, // Trang hiện tại
+            Search: query || null, // Từ khóa tìm kiếm
+          },
+        }
+      );
+      setSuggestions(response.data); // Cập nhật danh sách gợi ý từ API
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchTerm(suggestion);
+    setSuggestions([]);
+  };
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -85,6 +129,7 @@ const Navbar = () => {
     sessionStorage.removeItem("userId");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("roleId");
+    sessionStorage.removeItem("email");
     router.push("/login", { scroll: false });
   };
 
@@ -136,32 +181,61 @@ const Navbar = () => {
 
   return (
     <Box className="w-full bg-slate-100">
-      <Grid
-        container
-        alignItems="center"
-        spacing={2}
-        className="bg-white py-4 border-b shadow-md sticky top-0 z-30 px-5"
-      >
+      <Grid container alignItems="center" spacing={2} className="bg-white py-4 border-b shadow-md sticky top-0 z-30 px-5">
         {/* Logo */}
         <Grid item xs={1.5}>
           <Link href="/">
-            <Image
-              src={Logo}
-              width={100}
-              height={50}
-              alt="Logo"
-              className="w-30 md:w-40 md:h-8 cursor-pointer"
-            />
+            <Image src={Logo} width={100} height={50} alt="Logo" className="w-30 md:w-40 md:h-8 cursor-pointer" />
           </Link>
         </Grid>
 
-        {/* Navigation Links */}
-        <Grid item xs={7.5} container spacing={2} justifyContent="start" alignItems="center" className = 'mt-4'>
-          <Input
-            type="search"
-            placeholder="Search..."
-            className="rounded-lg bg-background pl-8 mt-2 ml-4 w-[400px]"
-          />
+        {/* Tìm kiếm */}
+        <Grid item xs={7.5} container spacing={2} justifyContent="start" alignItems="center" className="mt-4">
+        <Input
+  type="search"
+  value={searchTerm}
+  onChange={handleSearchChange}
+  placeholder="Tìm kiếm..."
+  className="rounded-lg bg-background pl-8 mt-2 ml-4 w-[400px] relative z-10" // Giữ w-[400px] để đảm bảo chiều rộng giống ô tìm kiếm
+/>
+
+{/* Gợi ý tìm kiếm */}
+{loading && (
+  <div className="absolute top-full left-[190px]  w-[500px] p-2 text-gray-500 z-20 bg-white rounded-md shadow-lg">
+    Đang tìm kiếm...
+  </div>
+)}
+
+{suggestions?.count > 0 && !loading && (
+  <ul className="absolute top-full left-[190px] w-[500px] bg-white border border-gray-300 rounded-md mt-2 shadow-lg z-20 max-h-64 overflow-y-auto">
+    {suggestions.fields.map((field, index) => (
+      <li
+        key={index}
+        className="p-4 border-b border-gray-200 hover:bg-gray-100 cursor-pointer transition-all duration-200"
+      >
+        <Link href={`/filter/${field.endPoint}`}>
+        <div className="flex flex-col space-y-2">
+          <h2 className="text-lg font-semibold text-gray-800">{field.name}</h2>
+          <div className="flex items-center space-x-3">
+            <img
+              src={field.pictureUrl}
+              alt={field.name}
+              className="w-20 h-20 object-cover rounded-md"
+            />
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm text-gray-600">{field.address}</p>
+              <p className="text-sm text-gray-600">Sân: {field.sport}</p>
+              <p className="text-sm text-gray-600">Giá: {field.priceRange}</p>
+              <p className="text-sm text-gray-600">Đánh giá: {field.stars}</p>
+            </div>
+          </div>
+        </div>
+        </Link>
+      </li>
+    ))}
+  </ul>
+)}
+
           <Link href="/filter" className="mx-3 mt-2">Thông tin sân</Link>
           <Link href="/equipment" className="mx-3 mt-2">Thiết bị</Link>
           <Link href="/team" className="mx-3 mt-2">Team</Link>
@@ -170,7 +244,7 @@ const Navbar = () => {
           <Link href="/contact" className="mx-3 mt-2">Liên hệ</Link>
         </Grid>
 
-        {/* User Info and Buttons */}
+        {/* Các liên kết và thông tin người dùng */}
         <Grid item xs={3} container alignItems="center" justifyContent="flex-end">
           {loading ? <Loading /> : (
           <Box className="flex items-center gap-2">
@@ -281,6 +355,12 @@ const Navbar = () => {
         <div className='flex items-center gap-3 rounded-lg px-3 py-2'>
           <BellRing className="h-4 w-4" />
             Thông báo
+          </div>
+        </MenuItem>
+        <MenuItem onClick={() => router.push("/user/booking", { scroll: false })}>
+        <div className='flex items-center gap-3 rounded-lg px-3 py-2'>
+          <ShoppingCart className="h-4 w-4" />
+            Đơn đặt sân
           </div>
         </MenuItem>
         <MenuItem onClick={() => router.push("/user/order", { scroll: false })}>

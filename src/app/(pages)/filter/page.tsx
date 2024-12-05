@@ -84,7 +84,7 @@ const CheckboxReactHookFormMultiple = () => {
     },
   });
 
-  const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
+  const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -92,8 +92,8 @@ const CheckboxReactHookFormMultiple = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
+            latitude: position.coords.latitude || null,
+            longitude: position.coords.longitude || null,
           });
         },
         (error) => {
@@ -121,8 +121,8 @@ const CheckboxReactHookFormMultiple = () => {
             StarRatings: ratings ? ratings.join(",") : null,
             MinPrice: minPrice,
             MaxPrice: maxPrice,
-            UserLat: location? location.latitude : 0,
-            UserLong: location ? location.longitude : 0,
+            UserLat: location? location.latitude : null,
+            UserLong: location ? location.longitude : null,
           },
         }
       );
@@ -163,6 +163,33 @@ const CheckboxReactHookFormMultiple = () => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const skeletonItems = Array.from({ length: 9 });
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    if (e.target.value.trim()) {
+      setLoading(true);
+      try {
+        const response = await axios.get(`https://sportappdemo.azurewebsites.net/api/SportField/GetSportFields`, {
+          params: {
+            Search: e.target.value,
+            PageSize: 5,
+            PageNumber: 1
+          }
+        });
+        setResults(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setResults([]); // Reset results if search query is empty
+    }
+  };
+
   return (
     <div>
       <Navbar />
@@ -173,12 +200,9 @@ const CheckboxReactHookFormMultiple = () => {
             <div className="h-px my-4 bg-gray-300 shadow"></div>
             <form onSubmit={form.handleSubmit(fetchFilteredData)} className="space-y-8">
             <FormItem>
-              <div className="mb-4">
-                <FormLabel className="text-sm text-[#566976]">Search</FormLabel>
-              </div>
               <Input
                 id="search"
-                placeholder="Search..."
+                placeholder="Tìm kiếm..."
                 onChange={(e) => form.setValue("search", e.target.value)}
                 className="h-8"
               />
@@ -248,7 +272,7 @@ const CheckboxReactHookFormMultiple = () => {
     render={({ field }) => (
       <FormItem>
         <div className="mb-4">
-          <FormLabel className="text-sm text-[#566976]">Star Ratings</FormLabel>
+          <FormLabel className="text-sm text-[#566976]">Số sao</FormLabel>
         </div>
         {ratings.map((rating) => (
           <FormItem key={rating.id} className="flex flex-row items-center gap-3">

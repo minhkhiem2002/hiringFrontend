@@ -1,19 +1,22 @@
 import { create } from 'zustand';
-import { Booking, GetBookingByCustomer, GetBookingByCustomerParams } from '../interfaces/bookingInterface';
-import { createBookingApi, getBookingByCustomerApi } from '../api/bookingApi';
+import { Booking, GetBookingByCustomer,GetOrderByCustomer, GetBookingByCustomerParams, GetOrderByCustomerParams } from '../interfaces/bookingInterface';
+import { createBookingApi, getBookingByCustomerApi, getOrderByCustomerApi  } from '../api/bookingApi';
 
 interface BookingState {
   booking: Booking | null;
-  bookings: GetBookingByCustomer[]; // Thêm state cho danh sách booking của khách hàng
+  bookings: GetBookingByCustomer[]; 
+  orders: GetOrderByCustomer[];
   loading: boolean;
   error: string | null;
   fetchBookingData: (booking: Booking | null) => Promise<void>;
-  fetchBookingsByCustomer: (params: GetBookingByCustomerParams) => Promise<void>; // Phương thức mới để lấy dữ liệu booking
+  fetchBookingsByCustomer: (params: GetBookingByCustomerParams) => Promise<void>; 
+  fetchOrdersByCustomer: (params: GetOrderByCustomerParams) => Promise<void>;
 }
 
 export const useBookingStore = create<BookingState>((set) => ({
   booking: null,
-  bookings: [], // Khởi tạo mảng booking trống
+  bookings: [], 
+  orders: [],
   loading: false,
   error: null,
   fetchBookingData: async (booking) => {
@@ -34,6 +37,16 @@ export const useBookingStore = create<BookingState>((set) => ({
       return bookingsData;
     } catch (error) {
       set({ error: 'Failed to fetch bookings for customer', loading: false });
+    }
+  },
+  fetchOrdersByCustomer: async (params) => {
+    set({ loading: true, error: null });
+    try {
+      const ordersData = await getOrderByCustomerApi(params);
+      set({ orders: ordersData, loading: false });
+      return ordersData;
+    } catch (error) {
+      set({ error: 'Failed to fetch orders for customer', loading: false });
     }
   },
 }));
