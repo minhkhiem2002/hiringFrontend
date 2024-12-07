@@ -19,3 +19,12 @@ export interface Product {
     price: number;
     name: string;
 }
+
+export interface Rating {
+    orderItemId: string;
+    customerId: string;
+    customerName?: string;
+    startRating: 0;
+    comment: string;
+    avatar?: string | undefined;
+  }

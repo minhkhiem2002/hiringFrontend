@@ -48,6 +48,21 @@ const Order = () => {
     setPageNumber(1); // Reset về trang đầu
   };
 
+  const handleCancelOrder = (orderId: string) => {
+    // Thực hiện logic hủy đơn hàng
+    console.log(`Hủy đơn hàng: ${orderId}`);
+  };
+
+  const handleCommentOrder = (orderId: string) => {
+    // Thực hiện logic bình luận
+    console.log(`Bình luận đơn hàng: ${orderId}`);
+  };
+
+  const handleResetItem = (itemId: string) => {
+    // Thực hiện logic đặt lại cho sản phẩm
+    console.log(`Đặt lại sản phẩm: ${itemId}`);
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -100,16 +115,15 @@ const Order = () => {
                     selectedStatus === "PaymentFailed" ? "bg-red-100 text-red-700" : "bg-gray-200 text-gray-600"
                   } flex items-center gap-2 px-4 py-2 rounded-lg`}
                 >
-                  <MdAttachMoney  />
+                  <MdAttachMoney />
                   Thanh toán thất bại
                 </Button>
                 <Button
                   onClick={() => handleFilterStatus("Complete")}
-                  className={`${ 
-                    selectedStatus === "Complete" ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-600"
-                  } flex items-center gap-2 px-4 py-2 rounded-lg`}
+                  className={`${selectedStatus === "Complete" ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-600"
+                    } flex items-center gap-2 px-4 py-2 rounded-lg`}
                 >
-                  <MdOutlineDone  />
+                  <MdOutlineDone />
                   Đã nhận hàng
                 </Button>
               </div>
@@ -136,12 +150,12 @@ const Order = () => {
                             <span
                               className={`font-medium px-2 py-1 rounded-lg ${
                                 order.orderStatus === "Pending"
-                                ? "bg-yellow-100 text-yellow-700"
-                                : order.orderStatus === "PaymentReceived"
-                                ? "bg-green-100 text-green-700"
-                                : order.orderStatus === "PaymentFailed"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-blue-100 text-blue-700"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : order.orderStatus === "PaymentReceived"
+                                  ? "bg-green-100 text-green-700"
+                                  : order.orderStatus === "PaymentFailed"
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-blue-100 text-blue-700"
                               }`}
                             >
                               {order.orderStatus === "Pending"
@@ -165,6 +179,8 @@ const Order = () => {
                           <p className="text-sm text-gray-600">{order.shippingAddress.addressLine}</p>
                         </div>
                       </div>
+
+                      {/* Hiển thị các mặt hàng trong đơn hàng */}
                       <div className="flex flex-col gap-4">
                         {order.items.map((item, i) => (
                           <div key={i} className="flex items-center gap-4 p-2 border rounded-lg">
@@ -183,21 +199,54 @@ const Order = () => {
                                 Số lượng: {item.quantity} x {item.price.toLocaleString()} VND
                               </div>
                             </div>
+
+                            {/* Các nút điều khiển cho từng sản phẩm */}
+                            <div className="flex gap-2 ml-auto">
+                              {order.orderStatus === "Complete" && (
+                                <Button
+                                  onClick={() => handleCommentOrder(order.orderId)}
+                                  className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                                >
+                                  Bình luận
+                                </Button>
+                              )}
+
+                              {["Pending", "PaymentReceived"].includes(order.orderStatus) && (
+                                <Button
+                                  onClick={() => handleCancelOrder(order.orderId)}
+                                  className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                                >
+                                  Hủy đơn hàng
+                                </Button>
+                              )}
+
+                      {order.orderStatus === "Complete" && (
+                                <Button
+                                  onClick={() => handleResetItem(item.itemId)}
+                                  className="bg-green-500 text-white px-4 py-2 rounded-lg"
+                                >
+                                  Đặt lại
+                                </Button>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
                   ))}
-                  <Pagination
+                </>
+              )}
+            </div>
+
+            {/* Pagination */}
+            <Pagination
                     count={Math.ceil(orders.count / 5)}
                     page={pageNumber}
                     onChange={handlePageChange}
                     color="primary"
                     className="my-4 flex justify-center"
                   />
-                </>
-              )}
-            </div>
+
           </main>
         </div>
       </div>

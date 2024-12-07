@@ -11,6 +11,7 @@ import { CartState } from "@/services/interfaces/cartInterface";
 import { ToastContainer, toast } from "react-toastify"; 
 import 'react-toastify/dist/ReactToastify.css';
 import Loading from "@/components/user/loading";
+import CommentSection from './comment';
 
 const Detail = ({ params }: { params: { slug: string } }) => {
   const id = params.slug; // ID sản phẩm

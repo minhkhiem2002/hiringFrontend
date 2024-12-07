@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { EquipmentParams } from '../interfaces/equipmentInteraface';
+import { EquipmentParams, Rating } from '../interfaces/equipmentInteraface';
 
 const BASE_URL = 'https://sportappdemo.azurewebsites.net/api/SportProduct';
 
@@ -35,6 +35,16 @@ export const fetchEquipments = async (params: EquipmentParams = {}) => {
       return response.data;
     } catch (error) {
       console.error("Error fetching detail equipment:", error);
+      throw error;
+    }
+  }
+
+  export const postRatingApi = async (rating: Rating | null) => {
+    try {
+      const response = await axios.post('https://sportappdemo.azurewebsites.net/api/SportProduct/AddRating', rating)
+      return response.data;
+    } catch (error) {
+      console.error("Error add rating products:", error);
       throw error;
     }
   }

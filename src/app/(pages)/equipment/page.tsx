@@ -31,17 +31,76 @@ const categories = [
   { id: "Bóng chuyền", label: "Bóng chuyền" },
   { id: "Cầu lông", label: "Cầu lông" },
   { id: "Bơi lội", label: "Bơi lội" },
-  { id: "Thể thao trong nhà", label: "Thể thao trong nhà" },
+  { id: "Thể thao trong nhà", label: "Thể thao trong nhà" }
 ];
-
 
 const ratings = [
-  { id: "5star", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /></div> },
-  { id: "4star", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><p>trở lên</p></div> },
-  { id: "3star", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><p>trở lên</p></div> },
-  { id: "2star", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><p>trở lên</p></div> },
-  { id: "1star", label: <div className='flex gap-1'><FaStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><FaRegStar color="#F4B30C" /><p>trở lên</p></div> },
+  {
+    id: "5star",
+    label: (
+      <div className="flex gap-1">
+        <FaStar color="#F4B30C" />
+        <FaStar color="#F4B30C" />
+        <FaStar color="#F4B30C" />
+        <FaStar color="#F4B30C" />
+        <FaStar color="#F4B30C" />
+      </div>
+    )
+  },
+  {
+    id: "4star",
+    label: (
+      <div className="flex gap-1">
+        <FaStar color="#F4B30C" />
+        <FaStar color="#F4B30C" />
+        <FaStar color="#F4B30C" />
+        <FaStar color="#F4B30C" />
+        <FaRegStar color="#F4B30C" />
+        <p>trở lên</p>
+      </div>
+    )
+  },
+  {
+    id: "3star",
+    label: (
+      <div className="flex gap-1">
+        <FaStar color="#F4B30C" />
+        <FaStar color="#F4B30C" />
+        <FaStar color="#F4B30C" />
+        <FaRegStar color="#F4B30C" />
+        <FaRegStar color="#F4B30C" />
+        <p>trở lên</p>
+      </div>
+    )
+  },
+  {
+    id: "2star",
+    label: (
+      <div className="flex gap-1">
+        <FaStar color="#F4B30C" />
+        <FaStar color="#F4B30C" />
+        <FaRegStar color="#F4B30C" />
+        <FaRegStar color="#F4B30C" />
+        <FaRegStar color="#F4B30C" />
+        <p>trở lên</p>
+      </div>
+    )
+  },
+  {
+    id: "1star",
+    label: (
+      <div className="flex gap-1">
+        <FaStar color="#F4B30C" />
+        <FaRegStar color="#F4B30C" />
+        <FaRegStar color="#F4B30C" />
+        <FaRegStar color="#F4B30C" />
+        <FaRegStar color="#F4B30C" />
+        <p>trở lên</p>
+      </div>
+    )
+  }
 ];
+
 
 const itemsPerPage = 9;
 
@@ -52,7 +111,9 @@ const FormSchema = z.object({
   ratings: z.array(z.string()).optional(),
   minPrice: z.number().optional(),
   maxPrice: z.number().optional(),
-  orderBy: z.string().optional(), 
+  orderBy: z.string().optional(),
+  colors: z.string().optional(),
+  sizes: z.string().optional()
 });
 
 const Equipment = () => {
@@ -60,30 +121,35 @@ const Equipment = () => {
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [sizes, setSizes] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
 
-  const {fetchEquipmentsData} = useEquipmentStore()
+  const { fetchEquipmentsData } = useEquipmentStore();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      search: '',
+      search: "",
       items: [],
       ratings: [],
       minPrice: 0,
-      maxPrice: 1000000,
-    },
+      maxPrice: 1000000
+    }
   });
 
   const [error, setError] = useState(null);
 
-
   // Hàm gọi API
   const fetchFilteredData = async () => {
-    const { items,search, ratings, minPrice, maxPrice, orderBy  } = form.getValues();
+    const { items, search, ratings, minPrice, maxPrice, orderBy } =
+      form.getValues();
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `https://sportappdemo.azurewebsites.net/api/SportProduct/GetSportProducts`, {
+        `https://sportappdemo.azurewebsites.net/api/SportProduct/GetSportProducts`,
+        {
           params: {
             PageSize: itemsPerPage,
             PageNumber: currentPage,
@@ -91,19 +157,21 @@ const Equipment = () => {
             Sort: "rating",
             Sports: items ? items.join(",") : null,
             OrderBy: orderBy || null,
-            Colors: null,
-            Sizes: null
-          },
+            Colors: selectedColor || null,
+            Sizes: selectedSize || null
+          }
         }
       );
 
-      setFilteredItems(response.data.products); 
-      setTotalItems(response?.data?.count); 
+      setFilteredItems(response.data.products);
+      setTotalItems(response?.data?.count);
+      setSizes(response?.data?.sizes);
+      setColors(response?.data?.colors);
     } catch (error) {
       toast({
         title: "Error",
         description: "Could not fetch data",
-        status: "error",
+        status: "error"
       });
       console.error("Error fetching data:", error);
     } finally {
@@ -121,8 +189,9 @@ const Equipment = () => {
     form.watch("maxPrice"),
     form.watch("orderBy"),
     currentPage,
+    selectedSize,
+    selectedColor
   ]);
-
 
   // Số trang dựa trên tổng số mục trả về từ API
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -136,8 +205,11 @@ const Equipment = () => {
           <Form {...form}>
             <FormLabel className="text-lg text-[#21717A]">Filter By</FormLabel>
             <div className="h-px my-4 bg-gray-300 shadow"></div>
-            <form onSubmit={form.handleSubmit(fetchFilteredData)} className="space-y-8">
-            <FormItem>
+            <form
+              onSubmit={form.handleSubmit(fetchFilteredData)}
+              className="space-y-8"
+            >
+              <FormItem>
                 <div className="flex items-center space-x-4">
                   <Input
                     id="search"
@@ -154,7 +226,9 @@ const Equipment = () => {
                 render={({ field }) => (
                   <FormItem>
                     <div className="mb-4">
-                      <FormLabel className="text-sm text-[#566976]">Categories</FormLabel>
+                      <FormLabel className="text-sm text-[#566976]">
+                        Categories
+                      </FormLabel>
                     </div>
                     {categories.map((item) => (
                       <FormItem
@@ -168,7 +242,11 @@ const Equipment = () => {
                               if (checked) {
                                 field.onChange([...field.value, item.id]);
                               } else {
-                                field.onChange(field.value?.filter((value) => value !== item.id));
+                                field.onChange(
+                                  field.value?.filter(
+                                    (value) => value !== item.id
+                                  )
+                                );
                               }
                             }}
                             className="data-[state=checked]:bg-[#129AA6]"
@@ -188,12 +266,14 @@ const Equipment = () => {
                 <div className="mb-4">
                   <FormLabel className="text-sm text-[#566976]">Giá</FormLabel>
                 </div>
-                <p className='text-sm text-[#566976]'>Chọn khoảng giá</p>
+                <p className="text-sm text-[#566976]">Chọn khoảng giá</p>
                 <div className="flex items-center space-x-4">
                   <Input
                     id="minPrice"
                     type="number"
-                    onChange={(e) => form.setValue("minPrice", Number(e.target.value))}
+                    onChange={(e) =>
+                      form.setValue("minPrice", Number(e.target.value))
+                    }
                     placeholder="Giá thấp nhất"
                     className="h-8"
                   />
@@ -201,67 +281,120 @@ const Equipment = () => {
                   <Input
                     id="maxPrice"
                     type="number"
-                    onChange={(e) => form.setValue("maxPrice", Number(e.target.value))}
+                    onChange={(e) =>
+                      form.setValue("maxPrice", Number(e.target.value))
+                    }
                     placeholder="Giá cao nhất"
                     className="h-8"
                   />
                 </div>
               </FormItem>
               <FormItem>
-  <div className="mb-4">
-    <FormLabel className="text-sm text-[#566976]">Sắp xếp</FormLabel>
-  </div>
-  <FormControl>
-    <select
-      id="OrderBy"
-      onChange={(e) => form.setValue("orderBy", e.target.value)}
-      className="h-8 w-full border rounded-md px-2 text-sm text-[#566976]"
-    >
-      <option value="">Mặc định</option>
-      <option value="A-Z">Tên: A-Z</option>
-      <option value="Z-A">Tên: Z-A</option>
-      <option value="$-$$$">Giá: Thấp đến cao</option>
-      <option value="$$$-$">Giá: Cao đến thấp</option>
-    </select>
-  </FormControl>
-</FormItem>
-
+                <div className="mb-4">
+                  <FormLabel className="text-sm text-[#566976]">
+                    Sắp xếp
+                  </FormLabel>
+                </div>
+                <FormControl>
+                  <select
+                    id="OrderBy"
+                    onChange={(e) => form.setValue("orderBy", e.target.value)}
+                    className="h-8 w-full border rounded-md px-2 text-sm text-[#566976]"
+                  >
+                    <option value="">Mặc định</option>
+                    <option value="A-Z">Tên: A-Z</option>
+                    <option value="Z-A">Tên: Z-A</option>
+                    <option value="$-$$$">Giá: Thấp đến cao</option>
+                    <option value="$$$-$">Giá: Cao đến thấp</option>
+                  </select>
+                </FormControl>
+              </FormItem>
+              <FormItem>
+                <div className="mb-4">
+                  <FormLabel className="text-sm text-[#566976]">
+                    Kích thước
+                  </FormLabel>
+                </div>
+                <FormControl>
+                  <select
+                    id="size"
+                    value={selectedSize}
+                    onChange={(e) => {
+                      setSelectedSize(e.target.value);
+                      form.setValue('size', e.target.value);  // Cập nhật giá trị trong form
+                    }}
+                    className="h-8 w-full border rounded-md px-2 text-sm text-[#566976]"
+                  >
+                    <option value="">Chọn kích thước</option>
+                    {sizes.map((size, index) => (
+                      <option key={index} value={size}>
+                        {size}
+                      </option>
+                    ))}
+                  </select>
+                </FormControl>
+              </FormItem>
+              <FormItem>
+        <div className="mb-4">
+          <FormLabel className="text-sm text-[#566976]">Màu</FormLabel>
+        </div>
+            <FormControl>
+              <div className="flex space-x-2">
+                {colors.map((color, index) => (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      setSelectedColor(color);
+                      form.setValue('color', color);  // Cập nhật giá trị trong form
+                    }}
+                    style={{
+                      backgroundColor: color,
+                      width: 30,
+                      height: 30,
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      border: selectedColor === color ? '2px solid #000' : 'none',
+                    }}
+                  />
+                ))}
+              </div>
+            </FormControl>
+          </FormItem>
             </form>
           </Form>
         </div>
         <div className="w-4/5 p-6">
           {isLoading ? (
             <>
-  <Box className="flex gap-12">
-    <Skeleton variant="rectangular" width={350} height={370} />
-    <Skeleton variant="rectangular" width={350} height={370} />
-    <Skeleton variant="rectangular" width={350} height={370} />
-  </Box>
-  <Box className="flex gap-12 mt-4">
-    <Skeleton variant="rectangular" width={350} height={370} />
-    <Skeleton variant="rectangular" width={350} height={370} />
-    <Skeleton variant="rectangular" width={350} height={370} />
-  </Box>
-  <Box className="flex gap-12 mt-4">
-    <Skeleton variant="rectangular" width={350} height={370} />
-    <Skeleton variant="rectangular" width={350} height={370} />
-    <Skeleton variant="rectangular" width={350} height={370} />
-  </Box>
-</>
-
+              <Box className="flex gap-12">
+                <Skeleton variant="rectangular" width={350} height={370} />
+                <Skeleton variant="rectangular" width={350} height={370} />
+                <Skeleton variant="rectangular" width={350} height={370} />
+              </Box>
+              <Box className="flex gap-12 mt-4">
+                <Skeleton variant="rectangular" width={350} height={370} />
+                <Skeleton variant="rectangular" width={350} height={370} />
+                <Skeleton variant="rectangular" width={350} height={370} />
+              </Box>
+              <Box className="flex gap-12 mt-4">
+                <Skeleton variant="rectangular" width={350} height={370} />
+                <Skeleton variant="rectangular" width={350} height={370} />
+                <Skeleton variant="rectangular" width={350} height={370} />
+              </Box>
+            </>
           ) : (
             <div>
               <div className="grid grid-cols-3 gap-4">
                 {filteredItems && filteredItems.length > 0 ? (
                   filteredItems.map((item) => (
                     // <Link href={/equipment/${item.colorEndpoints[0].endPoint}} key={item.id}>
-                      <CardEq 
-                          pictureUrl={item.pictureUrl} 
-                          colorEndpoints={item.colorEndpoints} 
-                          price={item.price}
-                          name={item.name}
-                          sport={item.sport}
-                        />
+                    <CardEq
+                      pictureUrl={item.pictureUrl}
+                      colorEndpoints={item.colorEndpoints}
+                      price={item.price}
+                      name={item.name}
+                      sport={item.sport}
+                    />
                     // </Link>
                   ))
                 ) : (

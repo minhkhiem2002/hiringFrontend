@@ -22,7 +22,8 @@ export interface GetBookingByCustomer {
 export interface GetBookingByCustomerParams {
   CustomerId: string;
   PageSize: number;
-  PageNumber: number
+  PageNumber: number;
+  Status: string;
 }
 
 export interface GetOrderByCustomerParams {

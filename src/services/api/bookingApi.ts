@@ -18,7 +18,8 @@ export const createBookingApi = async (booking: Booking | null) => {
           params: {
             CustomerId: params.CustomerId,
             PageSize: params.PageSize,
-            PageNumber: params.PageNumber
+            PageNumber: params.PageNumber,
+            Status: params.Status
           }
         }
       );
