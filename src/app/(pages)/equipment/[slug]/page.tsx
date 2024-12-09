@@ -224,6 +224,7 @@ const Detail = ({ params }: { params: { slug: string } }) => {
               </tbody>
             </table>
           </div>
+          <CommentSection/>
         </div>
       )}
     </div>

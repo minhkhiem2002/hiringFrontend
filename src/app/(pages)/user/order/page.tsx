@@ -5,16 +5,21 @@ import ProfileSidebar from "@/components/user/profile-sidebar";
 import { useUserStore } from "@/services/store/userStore";
 import { useBookingStore } from "@/services/store/bookingStore";
 import { FaFilter, FaShippingFast, FaMoneyBillWave, FaCalendarAlt } from "react-icons/fa";
-import { MdPendingActions, MdOutlineDone, MdError, MdAttachMoney } from "react-icons/md";
+import { MdPendingActions, MdOutlineDone, MdError, MdAttachMoney, MdLocalShipping, MdCancel  } from "react-icons/md";
 import Pagination from "@mui/material/Pagination";
 import Loading from "@/components/user/loading";
 import { Button } from "@/components/ui/button";
+import ModalComment from './modalcomment';
+import { useRouter } from 'next/navigation';
 
 const Order = () => {
+  const router = useRouter();
   const [fullName, setFullName] = useState<string>("");
   const [userAvatar, setUserAvatar] = useState<string>("");
   const [pageNumber, setPageNumber] = useState(1);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [addCommentModal, setAddCommentModal] = useState(false)
+  const [idComment, setIdComment] = useState("")
 
   const getInfo = useUserStore((state) => state.getInfo);
   const { orders, loading, fetchOrdersByCustomer } = useBookingStore((state) => state);
@@ -45,26 +50,27 @@ const Order = () => {
 
   const handleFilterStatus = (status: string | null) => {
     setSelectedStatus(status);
-    setPageNumber(1); // Reset về trang đầu
+    setPageNumber(1); 
   };
 
   const handleCancelOrder = (orderId: string) => {
-    // Thực hiện logic hủy đơn hàng
     console.log(`Hủy đơn hàng: ${orderId}`);
   };
 
   const handleCommentOrder = (orderId: string) => {
-    // Thực hiện logic bình luận
+    setAddCommentModal(true)
+    setIdComment(orderId)
     console.log(`Bình luận đơn hàng: ${orderId}`);
   };
 
-  const handleResetItem = (itemId: string) => {
-    // Thực hiện logic đặt lại cho sản phẩm
-    console.log(`Đặt lại sản phẩm: ${itemId}`);
+  const handleResetItem = (endpoint: string) => {
+    router.push(`/equipment/${endpoint}`);
   };
 
   if (loading) return <Loading />;
 
+
+  console.log('Id comment send',idComment)
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="sticky z-20">
@@ -107,7 +113,7 @@ const Order = () => {
                   } flex items-center gap-2 px-4 py-2 rounded-lg`}
                 >
                   <FaMoneyBillWave />
-                  Thanh toán thành công
+                  Thành công
                 </Button>
                 <Button
                   onClick={() => handleFilterStatus("PaymentFailed")}
@@ -116,15 +122,29 @@ const Order = () => {
                   } flex items-center gap-2 px-4 py-2 rounded-lg`}
                 >
                   <MdAttachMoney />
-                  Thanh toán thất bại
+                  Thất bại
                 </Button>
                 <Button
-                  onClick={() => handleFilterStatus("Complete")}
-                  className={`${selectedStatus === "Complete" ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-600"
+                  onClick={() => handleFilterStatus("Transporting")}
+                  className={`${selectedStatus === "Transporting" ? "bg-yellow-100 text-yellow-700" : "bg-gray-200 text-gray-600"} flex items-center gap-2 px-4 py-2 rounded-lg`}
+                >
+                  <MdLocalShipping />
+                  Đang vận chuyển
+                </Button>
+                <Button
+                  onClick={() => handleFilterStatus("Completed")}
+                  className={`${selectedStatus === "Completed" ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-600"
                     } flex items-center gap-2 px-4 py-2 rounded-lg`}
                 >
                   <MdOutlineDone />
                   Đã nhận hàng
+                </Button>
+                <Button
+                  onClick={() => handleFilterStatus("Rejected")}
+                  className={`${selectedStatus === "Rejected" ? "bg-red-100 text-red-700" : "bg-gray-200 text-gray-600"} flex items-center gap-2 px-4 py-2 rounded-lg`}
+                >
+                  <MdCancel />
+                  Đã hủy
                 </Button>
               </div>
             </div>
@@ -150,12 +170,18 @@ const Order = () => {
                             <span
                               className={`font-medium px-2 py-1 rounded-lg ${
                                 order.orderStatus === "Pending"
-                                  ? "bg-yellow-100 text-yellow-700"
-                                  : order.orderStatus === "PaymentReceived"
-                                  ? "bg-green-100 text-green-700"
-                                  : order.orderStatus === "PaymentFailed"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-blue-100 text-blue-700"
+                                ? "bg-yellow-200 text-yellow-800"
+                                : order.orderStatus === "PaymentReceived"
+                                ? "bg-teal-100 text-teal-700"
+                                : order.orderStatus === "PaymentFailed"
+                                ? "bg-red-100 text-red-800" 
+                                : order.orderStatus === "Transporting"
+                                ? "bg-blue-100 text-blue-800"
+                                : order.orderStatus === "Complete"
+                                ? "bg-green-100 text-green-800"
+                                : order.orderStatus === "Rejected"
+                                ? "bg-pink-200 text-pink-800" 
+                                : ""
                               }`}
                             >
                               {order.orderStatus === "Pending"
@@ -164,8 +190,15 @@ const Order = () => {
                                 ? "Thanh toán thành công"
                                 : order.orderStatus === "PaymentFailed"
                                 ? "Thanh toán thất bại"
-                                : "Đã nhận hàng"}
+                                : order.orderStatus === "Transporting"
+                                ? "Đang vận chuyển"
+                                : order.orderStatus === "Complete"
+                                ? "Đã nhận hàng"
+                                : order.orderStatus === "Rejected"
+                                ? "Đã hủy"
+                                : ""}
                             </span>
+
                           </div>
                           <div className="text-sm text-gray-600 mt-1">
                             Tổng cộng: {order.subTotal.toLocaleString()} VND
@@ -204,25 +237,25 @@ const Order = () => {
                             <div className="flex gap-2 ml-auto">
                               {order.orderStatus === "Complete" && (
                                 <Button
-                                  onClick={() => handleCommentOrder(order.orderId)}
+                                  onClick={() => handleCommentOrder(item.id)}
                                   className="bg-blue-500 text-white px-4 py-2 rounded-lg"
                                 >
                                   Bình luận
                                 </Button>
                               )}
 
-                              {["Pending", "PaymentReceived"].includes(order.orderStatus) && (
+                              {["Pending", "PaymentReceived","Transporting"].includes(order.orderStatus) && (
                                 <Button
-                                  onClick={() => handleCancelOrder(order.orderId)}
+                                  onClick={() => handleCancelOrder(order.id)}
                                   className="bg-red-500 text-white px-4 py-2 rounded-lg"
                                 >
                                   Hủy đơn hàng
                                 </Button>
                               )}
 
-                      {order.orderStatus === "Complete" && (
+                      {["Complete", "Rejected"].includes(order.orderStatus) && (
                                 <Button
-                                  onClick={() => handleResetItem(item.itemId)}
+                                  onClick={() => handleResetItem(item.endPoint)}
                                   className="bg-green-500 text-white px-4 py-2 rounded-lg"
                                 >
                                   Đặt lại
@@ -246,7 +279,7 @@ const Order = () => {
                     color="primary"
                     className="my-4 flex justify-center"
                   />
-
+            <ModalComment addCommentModal={addCommentModal} setAddCommentModal={setAddCommentModal} orderItemId = {idComment}/>
           </main>
         </div>
       </div>

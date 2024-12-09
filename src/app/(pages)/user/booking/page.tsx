@@ -10,17 +10,20 @@ import { FaCalendarAlt, FaMoneyBillWave, FaMapMarkerAlt, FaFootballBall, FaFilte
 import Loading from "@/components/user/loading";
 import { MdAttachMoney, MdOutlineDone } from "react-icons/md";
 import { Button } from "@/components/ui/button";
+import ModalComment from './modalcomment';
+import { useRouter } from 'next/navigation';
 
 const Order = () => {
+  const router = useRouter();
   const [fullName, setFullName] = useState<string>("");
   const [userAvatar, setUserAvatar] = useState<string>("");
   const [pageNumber, setPageNumber] = useState(1);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [addCommentModal, setAddCommentModal] = useState(false)
+  const [idComment, setIdComment] = useState("")
 
   const getInfo = useUserStore((state) => state.getInfo);
-  const { bookings, loading, error, fetchBookingsByCustomer } = useBookingStore(
-    (state) => state
-  );
+  const { bookings, loading, error, fetchBookingsByCustomer } = useBookingStore((state) => state);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,7 +34,7 @@ const Order = () => {
           CustomerId: roleId,
           PageSize: 5,
           PageNumber: pageNumber,
-          Status: selectedStatus, // Thêm filter theo status
+          Status: selectedStatus,
         };
         await fetchBookingsByCustomer(params);
       } catch (error) {
@@ -40,7 +43,7 @@ const Order = () => {
     };
 
     fetchData();
-  }, [pageNumber, selectedStatus]); // Khi status thay đổi, sẽ gọi lại API
+  }, [pageNumber, selectedStatus]);
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPageNumber(value);
@@ -51,6 +54,20 @@ const Order = () => {
   };
 
   if (loading) return <Loading />;
+
+  const handleCancelOrder = (orderId: string) => {
+    console.log(`Hủy đơn hàng: ${orderId}`);
+  };
+
+  const handleCommentOrder = (orderId: string) => {
+    setAddCommentModal(true)
+    setIdComment(orderId)
+    console.log(`Bình luận đơn hàng: ${orderId}`);
+  };
+
+  const handleResetItem = (endpoint: string) => {
+    router.push(`/equipment/${endpoint}`);
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -106,23 +123,22 @@ const Order = () => {
                   Thanh toán thất bại
                 </Button>
                 <Button
-                  onClick={() => handleFilterStatus("Complete")}
+                  onClick={() => handleFilterStatus("Completed")}
                   className={`${
-                    selectedStatus === "Complete" ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-600"
+                    selectedStatus === "Completed" ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-600"
                   } flex items-center gap-2 px-4 py-2 rounded-lg`}
                 >
                   <MdOutlineDone />
                   Đã nhận sân
                 </Button>
               </div>
-              </div>
-              <div className="flex flex-col gap-6">
+            </div>
+            <div className="flex flex-col gap-6">
               {bookings?.count === 0 ? (
                 <div className="text-center text-xl text-gray-500">Chưa có đơn đặt nào</div>
               ) : (
                 <>
                   {bookings?.bookingList?.map((booking) => {
-                    // Xác định trạng thái
                     const status =
                       booking.status === "PaymentReceived"
                         ? { label: "Đã thanh toán", color: "text-green-600 bg-green-100" }
@@ -133,49 +149,45 @@ const Order = () => {
                     return (
                       <div
                         key={booking.id}
-                        className="flex justify-between items-center gap-4 p-4 border rounded-lg shadow-sm bg-white hover:shadow-md transition-shadow"
+                        className="flex flex-col gap-4 p-4 border rounded-lg shadow-sm bg-white hover:shadow-md transition-shadow"
                       >
-                        {/* Thông tin bên trái */}
-                        <div className="flex items-start gap-4 flex-1">
-                          <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full">
-                            <FaFootballBall className="text-blue-600 text-2xl" />
+                        <div className="flex justify-between items-center gap-4">
+                          <div className="flex items-start gap-4 flex-1">
+                            <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full">
+                              <FaFootballBall className="text-blue-600 text-2xl" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-lg text-gray-800">
+                                {booking.sportFieldName}
+                              </h3>
+                              <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                                <FaMapMarkerAlt className="text-red-500" />
+                                <p>{booking.address}</p>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                                <FaCalendarAlt className="text-blue-500" />
+                                <p>Ngày: {new Date(booking.bookingDate).toLocaleDateString()}</p>
+                              </div>
+                              <div className="text-sm text-gray-600 mt-1">
+                                <p>Thời gian: {booking.timeSlotBooked.join(", ")}</p>
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-semibold text-lg text-gray-800">
-                              {booking.sportFieldName}
-                            </h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                              <FaMapMarkerAlt className="text-red-500" />
-                              <p>{booking.address}</p>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                              <FaCalendarAlt className="text-blue-500" />
-                              <p>Ngày: {new Date(booking.bookingDate).toLocaleDateString()}</p>
-                            </div>
-                            <div className="text-sm text-gray-600 mt-1">
-                              <p>Thời gian: {booking.timeSlotBooked.join(", ")}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Thông tin bên phải */}
-                        <div className="flex flex-col items-end justify-center text-right gap-2">
-                          <span className="text-lg font-semibold text-gray-800">
-                            <FaMoneyBillWave className="inline-block mr-2 text-green-500" />
-                            {booking.totalPrice.toLocaleString()} VND
-                          </span>
-                          <span
-                              className={`font-medium px-2 py-1 rounded-lg ${
-                                booking.status === "Pending"
-                                  ? "bg-yellow-100 text-yellow-700"
-                                  : booking.status === "PaymentReceived"
-                                  ? "bg-green-100 text-green-700"
-                                  : booking.status === "PaymentFailed"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-blue-100 text-blue-700"
-                              }`}
-                            >
-                              {booking.status === "Pending"
+                          <div className="flex flex-col items-end justify-center text-right gap-2">
+                            <span className="text-lg font-semibold text-gray-800">
+                              <FaMoneyBillWave className="inline-block mr-2 text-green-500" />
+                              {booking.totalPrice.toLocaleString()} VND
+                            </span>
+                            <span className={`font-medium px-2 py-1 rounded-lg ${
+                            booking.status === "Pending"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : booking.status === "PaymentReceived"
+                              ? "bg-green-100 text-green-700"
+                              : booking.status === "PaymentFailed"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-blue-100 text-blue-700"
+                          }`}>
+                             {booking.status === "Pending"
                                 ? "Đang xử lý"
                                 : booking.status === "PaymentReceived"
                                 ? "Thanh toán thành công"
@@ -183,17 +195,38 @@ const Order = () => {
                                 ? "Thanh toán thất bại"
                                 : "Đã nhận sân"}
                             </span>
+                          </div>
+                        </div>
+                        <div className="flex justify-end gap-2">
+                          {(booking.status === "Completed" && booking.isRating == false) && (
+                            <Button 
+                            onClick={() => handleCommentOrder(booking.id)}
+                            className="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                              Bình luận
+                            </Button>
+                          )}
+                          {["Pending", "PaymentReceived"].includes(booking.status) && (
+                            <Button className="bg-red-500 text-white px-4 py-2 rounded-lg">
+                              Hủy đơn hàng
+                            </Button>
+                          )}
+                          {booking.status === "Completed" && (
+                            <Button className="bg-green-500 text-white px-4 py-2 rounded-lg">
+                              Đặt lại
+                            </Button>
+                          )}
                         </div>
                       </div>
                     );
                   })}
                   <Pagination
-                    count={Math.ceil(bookings.count / 5)} // 5 items per page
+                    count={Math.ceil(bookings.count / 5)}
                     page={pageNumber}
                     onChange={handlePageChange}
                     color="primary"
                     className="my-4 flex justify-center"
                   />
+                  <ModalComment addCommentModal={addCommentModal} setAddCommentModal={setAddCommentModal} orderItemId = {idComment}/>
                 </>
               )}
             </div>
