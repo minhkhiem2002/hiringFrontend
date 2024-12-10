@@ -1,23 +1,21 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import confetti from "canvas-confetti";
 import Navbar from "@/components/user/main-nav";
 
-const OrderSuccessPage: React.FC = () => {
+const OrderSuccessContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    // Lấy giá trị `status` từ URL
     const status = searchParams.get("status");
     setPaymentStatus(status || null);
 
     if (status === "success") {
-      // Hiệu ứng confetti khi thành công
       confetti({
         particleCount: 100,
         spread: 70,
@@ -61,28 +59,36 @@ const OrderSuccessPage: React.FC = () => {
   };
 
   return (
+    <>
+      {renderContent()}
+      <div className="flex justify-center mt-6 space-x-4">
+        <Button
+          className="bg-[#21717A] text-white"
+          onClick={() => router.push("/")}
+        >
+          Trang Chủ
+        </Button>
+        {paymentStatus && (
+          <Button
+            className="bg-gray-400 text-white"
+            onClick={() => router.push("/user/order")}
+          >
+            Lịch sử mua hàng
+          </Button>
+        )}
+      </div>
+    </>
+  );
+};
+
+const OrderSuccessPage: React.FC = () => {
+  return (
     <div className="w-full h-screen bg-[#F9F9F9] flex flex-col">
-      {/* Navbar */}
       <Navbar />
       <div className="w-full h-full flex flex-col items-center justify-center px-4">
-        {renderContent()} {/* Render nội dung theo trạng thái */}
-        <div className="flex justify-center mt-6 space-x-4">
-          {/* Button quay lại trang chủ */}
-          <Button
-            className="bg-[#21717A] text-white"
-            onClick={() => router.push("/")}
-          >
-            Trang Chủ
-          </Button>
-          {paymentStatus && (
-            <Button
-              className="bg-gray-400 text-white"
-              onClick={() => router.push("/user/order")}
-            >
-              Lịch sử mua hàng
-            </Button>
-          )}
-        </div>
+        <Suspense fallback={<div>Đang tải...</div>}>
+          <OrderSuccessContent />
+        </Suspense>
       </div>
     </div>
   );
