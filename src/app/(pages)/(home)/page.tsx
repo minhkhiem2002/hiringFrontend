@@ -2,9 +2,7 @@ import Navbar from "@/components/user/main-nav";
 import Image from "next/image";
 import Banner from "../../../../public/images/Banner.jpg";
 import TextBanner from "../../../../public/images/TextBanner.png";
-import Bg1_Home from '../../../../public/images/bg1_Home.png'; // Đường dẫn hình ảnh từ thư mục public
-import CardDp from "@/components/user/card-dp";
-import CardHeader from "./../../../components/user/card-header/card-header";
+// import CardHeader from "./../../../components/user/card-header/card-header";
 
 const HomePage = () => {
   return (
@@ -54,7 +52,7 @@ const HomePage = () => {
                 > Works</span>
               </p>
               <p className='text-slate-500 font-medium text-xl'>Simplifying the booking process for coaches, venues, and athletes.</p>
-              <CardHeader/>
+              {/* <CardHeader/> */}
           </div>
       </div>
 
