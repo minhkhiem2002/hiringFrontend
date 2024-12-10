@@ -1,4 +1,3 @@
-'use client'
 import axios from "axios";
 import { CartState, Order } from "../interfaces/cartInterface";
 
@@ -7,8 +6,10 @@ const API_BASE_URL_2 = "https://sportappdemo.azurewebsites.net/api/Order";
 
 export const addToCartApi = async (item: CartState) => {
   try {
-    const token = sessionStorage.getItem("token");
-
+    let token = "";
+    if (typeof window !== "undefined") {
+     token = sessionStorage.getItem("token") || "";
+    }
     const response = await axios.post(
       `${API_BASE_URL}/AddItem?sportProductVariantId=${item.sportProductVariantId}&quantity=${item.quantity}`,
       {},
@@ -28,7 +29,10 @@ export const addToCartApi = async (item: CartState) => {
 
 export const fetchCartApi = async () => {
   try {
-    const token = sessionStorage.getItem("token");
+    let token = "";
+    if (typeof window !== "undefined") {
+     token = sessionStorage.getItem("token") || "";
+    }
     const response = await axios.get(
       `${API_BASE_URL}/GetCartDetail`,
       {
@@ -48,7 +52,10 @@ export const fetchCartApi = async () => {
 
 export const clearCartApi = async (item: CartState) => {
   try {
-    const token = sessionStorage.getItem("token");
+    let token = "";
+    if (typeof window !== "undefined") {
+     token = sessionStorage.getItem("token") || "";
+    }
     const response = await axios.post(`${API_BASE_URL}/DeleteItem?sportProductVariantId=${item.sportProductVariantId}&quantity=${item.quantity}`,{},
       {
         headers: {

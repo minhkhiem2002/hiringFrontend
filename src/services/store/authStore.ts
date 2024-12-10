@@ -1,4 +1,3 @@
-'use client'
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User, SignUpUser, ResetPassword, SendMail } from '../interfaces/authInterface';
@@ -35,12 +34,12 @@ export const useAuthStore = create<State & Action>(
           const response = await loginApi(email, password);
           if (response) {
             const { id, userRoleId, email, token, role } = response;
-
+            if (typeof window !== "undefined") {
             sessionStorage.setItem('token', token);
             sessionStorage.setItem('userId', id);
             sessionStorage.setItem('roleId',userRoleId)
             sessionStorage.setItem('email',email)
-
+            }
             set({
               user: { id, userRoleId, email, token, role },
               isLogin: true,

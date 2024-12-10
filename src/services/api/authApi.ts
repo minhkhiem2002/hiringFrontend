@@ -1,4 +1,3 @@
-'use client'
 import axios from 'axios';
 import { ResetPassword, SendMail, UserInfo, UserPasswordUpdate, UserProfileSkillUpdate } from '../interfaces/authInterface';
 
@@ -45,27 +44,33 @@ export const getInfoApi = async (userId: string | null) => {
 
 // UPDATE-INFO (PUT)
 export const updateInfoApi = async (data: UserInfo | null) => {
-  const userId = sessionStorage.getItem('userId');
+  let userId = "";
+  if (typeof window !== "undefined") {
+    userId = sessionStorage.getItem('userId') || "";
   if (!userId) return;
-  
+  }
   const response = await axios.put(`${API_URL}/UpdateUser`, data);
   return response.data;
 };
 
 // UPDATE PASSWORD (PUT)
 export const updatePasswordApi = async (data: UserPasswordUpdate) => {
-  const userId = sessionStorage.getItem('userId');
+  let userId = "";
+  if (typeof window !== "undefined") {
+    userId = sessionStorage.getItem('userId') || "";
   if (!userId) return;
-
+  }
   const response = await axios.put(`${API_URL}/resetPassword/${userId}`, data);
   return response.data;
 };
 
 // UPDATE AVATAR (PATCH)
 export const updateAvatarApi = async (avatarData: FormData) => {
-  const userId = sessionStorage.getItem('userId');
+  let userId = "";
+  if (typeof window !== "undefined") {
+    userId = sessionStorage.getItem('userId') || "";
   if (!userId) return;
-
+  }
   const response = await axios.patch(`${API_URL}/UpdateAvatar`, avatarData, {
     headers: {
       'Content-Type': 'multipart/form-data'

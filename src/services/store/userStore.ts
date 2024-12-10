@@ -57,7 +57,10 @@ export const useUserStore = create<UserStoreState>(
         try {
           const updatedUserInfo = await updateInfoApi(userData);
           if (updatedUserInfo) {
-            const userId = sessionStorage.getItem('userId');
+            let userId = "";
+            if (typeof window !== "undefined") {
+             userId = sessionStorage.getItem('userId');
+            }
             const userInfo = await getInfoApi(userId);
           if (userInfo) {
             set({ userInfo });
@@ -79,7 +82,10 @@ export const useUserStore = create<UserStoreState>(
         try {
           const updatedAvatar = await updateAvatarApi(avatarData);
           if (updatedAvatar) {
-            const userId = sessionStorage.getItem('userId');
+            let userId = "";
+            if (typeof window !== "undefined") {
+             userId = sessionStorage.getItem('userId');
+            }
             const userInfo = await getInfoApi(userId);
           if (userInfo) {
             set({ userInfo });
@@ -129,7 +135,10 @@ export const useUserStore = create<UserStoreState>(
         try {
           const response = await updateCustomerSkillApi(data);
           if (response) {
-            const userId = sessionStorage.getItem('roleId');
+            let userId = "";
+            if (typeof window !== "undefined") {
+             userId = sessionStorage.getItem('roleId');
+            }
             const customerDetail = await getCustomerSkillDetailApi(userId);
             if (customerDetail) {
               set({ customerDetail });
