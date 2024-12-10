@@ -194,13 +194,13 @@ const Navbar = () => {
         </Grid>
 
         {/* Tìm kiếm */}
-        <Grid item xs={7.5} container spacing={2} justifyContent="start" alignItems="center" className="mt-4">
+        <Grid item xs={7.5} container spacing={2} justifyContent="start" alignItems="center" className="mt-1">
         <Input
   type="search"
   value={searchTerm}
   onChange={handleSearchChange}
   placeholder="Tìm kiếm..."
-  className="rounded-lg bg-background pl-8 mt-2 ml-4 w-[400px] relative z-10" // Giữ w-[400px] để đảm bảo chiều rộng giống ô tìm kiếm
+  className="rounded-lg bg-background pl-8 ml-4 w-[400px] relative z-10" // Giữ w-[400px] để đảm bảo chiều rộng giống ô tìm kiếm
 />
 
 {/* Gợi ý tìm kiếm */}
@@ -240,16 +240,16 @@ const Navbar = () => {
   </ul>
 )}
 
-          <Link href="/filter" className="mx-3 mt-2">Thông tin sân</Link>
-          <Link href="/equipment" className="mx-3 mt-2">Thiết bị</Link>
-          <Link href="/team" className="mx-3 mt-2">Team</Link>
-          <Link href="/news" className="mx-3 mt-2">Tin tức</Link>
-          <Link href="/faq" className="mx-3 mt-2">FAQ</Link>
-          <Link href="/contact" className="mx-3 mt-2">Liên hệ</Link>
+          <Link href="/filter" className="mx-3">Thông tin sân</Link>
+          <Link href="/equipment" className="mx-3">Thiết bị</Link>
+          <Link href="/team" className="mx-3">Team</Link>
+          <Link href="/news" className="mx-3">Tin tức</Link>
+          <Link href="/faq" className="mx-3">FAQ</Link>
+          <Link href="/contact" className="mx-3">Liên hệ</Link>
         </Grid>
 
         {/* Các liên kết và thông tin người dùng */}
-        <Grid item xs={3} container alignItems="center" justifyContent="flex-end">
+        <Grid item xs={3} columnSpacing={1} container alignItems="center" justifyContent="flex-end">
           {loading ? <Loading /> : (
           <Box className="flex items-center gap-2">
             <button type="button" onClick={() => router.push('/cart')}>
@@ -316,12 +316,25 @@ const Navbar = () => {
               </div>
             ) : (
               <>
-                <Button onClick={handleRegister} className="bg-red-500 hover:bg-red-300">
+                {/* <Button onClick={handleRegister} className="bg-red-500 hover:bg-red-300">
                   Đăng ký
                 </Button>
                 <Button onClick={handleLogin} className="bg-red-500 hover:bg-red-300">
                   Đăng nhập
+                </Button> */}
+                <Button 
+                  onClick={handleRegister} 
+                  className="px-6 py-2 text-sm font-medium text-white transition duration-300 transform bg-green-300 rounded-lg shadow-md hover:bg-green-400 hover:scale-105 focus:ring-2 focus:ring-green-200 ml-2"
+                >
+                  Đăng ký
                 </Button>
+                <Button 
+                  onClick={handleLogin} 
+                  className="px-6 py-2 text-sm font-medium text-white transition duration-300 transform bg-green-300 rounded-lg shadow-md hover:bg-green-400 hover:scale-105 focus:ring-2 focus:ring-green-200"
+                >
+                  Đăng nhập
+                </Button>
+
               </>
             )}
           </Box>
