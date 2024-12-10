@@ -1,3 +1,4 @@
+'use client'
 import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
 import { UserInfo,UserProfileSkill, UserPasswordUpdate, UserInfoUpdate, UserProfileSkillUpdate } from '../interfaces/authInterface';

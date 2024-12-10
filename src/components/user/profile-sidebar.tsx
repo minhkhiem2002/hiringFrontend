@@ -29,40 +29,6 @@ const ProfileSidebar = ({ fullName, avatar }: { fullName: string; avatar: string
     (state) => state
   );
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const userId = sessionStorage.getItem("userId");
-  //       const roleId = sessionStorage.getItem("roleId");
-  //       const userInfo = await getInfo(userId);
-  //       if (userInfo) {
-  //         const params = {
-  //           Email: userInfo.email,
-  //           Status: null,
-  //           PageSize: 5, 
-  //           PageNumber: 1,
-  //         };
-  //         await fetchOrdersByCustomer(params)
-  //       }
-
-  //       if (roleId) {
-  //         const params = {
-  //           CustomerId: roleId,
-  //           PageSize: 5, 
-  //           PageNumber: 1,
-  //         };
-  //         await fetchBookingsByCustomer(params);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user information:", error);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
-
-
-
   return (
     <div className="hidden border-r h-[89%] bg-muted/40 md:block">
       <div className="flex h-3/4 flex-col gap-2">

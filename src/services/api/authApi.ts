@@ -1,3 +1,4 @@
+'use client'
 import axios from 'axios';
 import { ResetPassword, SendMail, UserInfo, UserPasswordUpdate, UserProfileSkillUpdate } from '../interfaces/authInterface';
 

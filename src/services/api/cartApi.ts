@@ -1,3 +1,4 @@
+'use client'
 import axios from "axios";
 import { CartState, Order } from "../interfaces/cartInterface";
 

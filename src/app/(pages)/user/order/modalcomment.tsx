@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useEffect } from 'react';
 import { Pagination, Button, Modal, Box } from '@mui/material';
 import { AiOutlineClose } from 'react-icons/ai';

@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useEffect } from 'react';
 import { Pagination, Button } from '@mui/material';
 import Image from 'next/image';
