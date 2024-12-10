@@ -75,10 +75,14 @@ const Navbar = () => {
   const fetchCart = useCartStore(state => state.fetchCart);
   const { quantity } = useCartStore();
   const notifications = useNotificationsStore((state) => state.notifications);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCart();
     getInfo(sessionStorage.getItem('userId'));
+    if (typeof window !== "undefined") {
+      setUserId(sessionStorage.getItem("userId"));
+    }
   }, []);
 
   const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
@@ -253,7 +257,7 @@ const Navbar = () => {
                     <ShoppingCartIcon />
                   </Badge>
                 </button>
-            {sessionStorage.getItem('userId') ? (
+            {userId ? (
               <div className="flex justify-center items-center gap-4">
                 <button aria-describedby={idNoti} type="button" onClick={handleClickNoti}>
                   <Badge color="secondary" badgeContent={notificationCount} showZero>
