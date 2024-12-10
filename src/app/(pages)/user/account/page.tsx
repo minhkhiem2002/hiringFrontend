@@ -252,7 +252,7 @@ const Information = () => {
                                 onChange={handleAvatarChange}
                               />
                               <img
-                                src={userInfo.avatar}
+                                src={userInfo?.avatar}
                                 alt="Avatar"
                                 width={200}
                                 height={200}
