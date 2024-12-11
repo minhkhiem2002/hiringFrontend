@@ -48,4 +48,6 @@ export interface DetailData {
   vouchers: string[];
   sportEquipments: string[];
   numberOfReviews: number;
+  ownerFullName: string;
+  phoneNumber: string;
 }
