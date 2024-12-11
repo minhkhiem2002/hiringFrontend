@@ -105,35 +105,6 @@ const CommentSection = () => {
         <Pagination count={Math.ceil(totalComments / commentsPerPage)} onChange={handlePageChange} />
       </div>
 
-      <div className="mt-8 border-t pt-6">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">Thêm bình luận của bạn</h3>
-        <textarea
-          placeholder="Chia sẻ cảm nhận của bạn về dịch vụ..."
-          className="w-full border-2 border-gray-300 rounded-lg p-4 resize-none focus:outline-none focus:ring-2 focus:ring-[#31AAB7] transition duration-200"
-          rows={4}
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-        />
-        <div className="flex items-center mt-4">
-          <label className="mr-3 text-gray-700 font-semibold">Đánh giá:</label>
-          {[1, 2, 3, 4, 5].map((star) => (
-            <span
-              key={star}
-              className={`cursor-pointer text-2xl ${star <= newRating ? 'text-yellow-500' : 'text-gray-300'}`}
-              onClick={() => setNewRating(star)}
-            >
-              ★
-            </span>
-          ))}
-        </div>
-        <Button
-          className="mt-6 bg-[#31AAB7] text-white w-full py-3 rounded-lg hover:bg-[#269d91] transition duration-200"
-          onClick={handleAddComment}
-        >
-          Gửi Bình Luận
-        </Button>
-      </div>
-
       <ModalUnlogin open={openUnlogin} onClose={() => setOpenUnlogin(false)} />
     </div>
   );

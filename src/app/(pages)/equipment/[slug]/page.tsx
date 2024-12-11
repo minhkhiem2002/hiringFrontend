@@ -96,9 +96,9 @@ const Detail = ({ params }: { params: { slug: string } }) => {
               
               {/* Rating and Reviews */}
               <div className="flex items-center space-x-2">
-                <Rating value={4} readOnly size="large" />
+                <Rating value={Math.ceil(equipment?.starAverage)} readOnly size="large" />
                 <p className="text-gray-600 text-sm">
-                  4.0 (1000 đánh giá)
+                  {equipment?.starAverage} (1000 đánh giá)
                 </p>
               </div>
 

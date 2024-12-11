@@ -6,6 +6,9 @@ export interface Booking {
     note?: string;
     timeBookedIds: string[];
     bookingDate: string | null;
+    fullName: string | null;
+    email: string | null;
+    phoneNumber: string | null;
   }
 
 export interface GetBookingByCustomer {

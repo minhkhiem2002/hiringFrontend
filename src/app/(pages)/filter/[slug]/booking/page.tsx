@@ -212,7 +212,10 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
       customerId: sessionStorage.getItem('roleId'),
       note: 'Note',
       timeBookedIds: selectedTimes,
-      bookingDate: selectedDate
+      bookingDate: selectedDate,
+      fullName: userInfo.name,
+      email: userInfo.email,
+      phoneNumber: userInfo.phone
     }
     const response = await fetchBookingData(dataBooking)
     if (response) {

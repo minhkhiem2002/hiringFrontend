@@ -9,6 +9,7 @@ import { Upload } from "lucide-react";
 import { FaStar } from "react-icons/fa";
 import { CiLocationOn } from "react-icons/ci";
 import { FaCartShopping } from "react-icons/fa6";
+import { FcBusinessman, FcCallback, FcApproval   } from "react-icons/fc";
 import { FaRegHeart } from "react-icons/fa";
 import ViewPriceDialog from "@/components/user/view-price";
 import Navbar from "@/components/user/main-nav";
@@ -121,6 +122,11 @@ function Detail({ params }: { params: { slug: string } }) {
           <div className="w-[55%] space-y-6 pt-4 pl-4">
             <p className="text-4xl font-semibold">{field?.name}</p>
             <p className="text-lg font-medium text-[#7D92A1]">Địa chỉ: {field?.address}</p>
+            <p className="flex text-base space-x-2 font-medium my-2">
+              <FcBusinessman  className="size-5" /> <span className = "mr-4">Chủ sân: {field?.ownerFullName}</span> 
+              <FcCallback   className="size-5 ml-4" /> <span className = "mr-4">Liên hệ: {field?.phoneNumber}</span> 
+              <FcApproval    className="size-5 ml-4" /> <span className = "mr-4">Tỉ lệ chấp nhận: {field?.ratioAccept} %</span> 
+            </p>
             <div className="flex">
               <Badge className="flex items-center bg-green-500 text-sm text-white rounded-md">
                 {field?.stars} <FaStar className="size-4 text-white ml-1" />
