@@ -10,7 +10,7 @@ import LogoutIcon from '../../../public/icons/Logout Rounded.svg'
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useUserStore } from "@/services/store/userStore";
-import { useRouter } from "next/navigation";
+import { useRouter ,usePathname } from "next/navigation";
 import Loading from "@/components/user/loading";
 import {
   Avatar,
@@ -40,6 +40,7 @@ import { useAuthStore } from "@/services/store/authStore";
 import { useNotificationsStore } from "@/services/store/notificationStore";
 import { NotificationParams } from "@/services/api/notificationApi";
 import { useCartStore } from "@/services/store/cartStore";
+import { useBookingStore } from "@/services/store/bookingStore";
 import axios from "axios";
 
 // Hàm format ngày giờ
@@ -57,6 +58,7 @@ function formatDate(dateString: any) {
 // Component Navbar
 const Navbar = () => {
   const router = useRouter();
+  const pathname = usePathname(); 
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(""); 
   const [suggestions, setSuggestions] = useState([]); 
